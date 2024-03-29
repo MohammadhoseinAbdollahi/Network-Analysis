@@ -1,0 +1,21 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+N = 3000
+p = 10**-3
+L = p * N * (N - 1) / 2
+print(f'The expected number of edges is {L:.2f}.')
+k = p * (N - 1)
+regime = 'supercritical' if k > 1 else 'subcritical' if k < 1 else 'critical'
+print(f'The regime is {regime}.')
+pc = 1 / (N - 1)
+print(f'The critical probability is {pc:.2f}.')
+Ncr = 1 / p
+print(f'The critical number of nodes is {Ncr:.2f}.')
+kcr = p * (Ncr - 1)
+d = np.log(Ncr) / np.log(kcr)
+
+# now 
+
+   
+

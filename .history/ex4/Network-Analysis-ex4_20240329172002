@@ -14,13 +14,12 @@ Ncr = 1 / p
 print(f'The critical number of nodes is {Ncr:.2f}.')
 kcr = p * (Ncr - 1)
 d = np.log(Ncr) / np.log(kcr)
-print(f'The critical average degree is {kcr:.2f}.')
-print(f'The critical average distance is {d:.2f}.')
+
+# now calculate it for actual erdos renyi graph
 
 
-print("//////////////////////////////////////////new code//////////////////////////////////////////")
 G=nx.erdos_renyi_graph(N,p)
-
+   
 # Calculate the actual number of links
 L_actual = G.number_of_edges()
 print(f'The actual number of links is {L_actual}.')

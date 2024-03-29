@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 N = 3000
-p = 10**-3
+p = 10**-2
 L = p * N * (N - 1) / 2
 print(f'The expected number of edges is {L:.2f}.')
 k = p * (N - 1)
@@ -18,9 +18,9 @@ print(f'The critical average degree is {kcr:.2f}.')
 print(f'The critical average distance is {d:.2f}.')
 
 
-print("//////////////////////////////////////////new code//////////////////////////////////////////")
+print("//////////////////////////////////////////")
 G=nx.erdos_renyi_graph(N,p)
-
+   
 # Calculate the actual number of links
 L_actual = G.number_of_edges()
 print(f'The actual number of links is {L_actual}.')
