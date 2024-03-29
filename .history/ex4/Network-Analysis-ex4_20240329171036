@@ -1,0 +1,28 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+correct =0
+not_correct = 0
+# Number of nodes
+n = 3000
+
+# Initialize the probability
+p = 10 ** -3
+for i in range(500,3000,500):
+    
+     G = nx.erdos_renyi_graph(i, p)
+    # # Generate a connected graph
+    # while not nx.is_connected(G):
+    #     G = nx.erdos_renyi_graph(i, p)
+    # #find the two most distanced nodes in the G graph
+    # if nx.is_connected(G):
+    #     diameter = nx.diameter(G)
+    #     print(f'The diameter of the graph is {diameter}')
+    # #find the shortest path between the two most distanced nodes
+    # if nx.is_connected(G):
+    #     shortest_path = nx.shortest_path(G, 0, diameter)
+    #     print(f'The shortest path between the two most distanced nodes is {shortest_path}')
+    
+
+   
+

@@ -1,0 +1,19 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Number of nodes
+n = 3000
+
+# Initialize the probability
+p = 10 ** -3
+
+G = nx.erdos_renyi_graph(n, p)
+
+#find the two distanced nodes
+node1 = 0
+node2 = 0
+while nx.shortest_path_length(G, node1, node2) != 2:
+    node1 = np.random.randint(0, n)
+    node2 = np.random.randint(0, n)
+    

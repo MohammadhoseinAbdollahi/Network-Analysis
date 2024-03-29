@@ -1,0 +1,9 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Number of nodes
+n = 100
+
+# Initialize the probability
+p = 0.005

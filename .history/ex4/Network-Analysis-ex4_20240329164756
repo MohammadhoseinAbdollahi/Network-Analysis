@@ -1,0 +1,13 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Number of nodes
+n = 3000
+
+# Initialize the probability
+p = 10 ** -3
+
+G = nx.erdos_renyi_graph(n, p)
+
+#find the two dista

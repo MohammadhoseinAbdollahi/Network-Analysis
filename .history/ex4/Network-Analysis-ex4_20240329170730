@@ -1,0 +1,29 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Number of nodes
+n = 3000
+
+# Initialize the probability
+p = 10 ** -3
+
+# Number of graphs
+num_graphs = 5
+
+# Create a figure and a grid of subplots
+fig, axs = plt.subplots(num_graphs, num_graphs, figsize=(15, 15))
+for i in range(500,3000,500):
+    G = nx.erdos_renyi_graph(i, p)
+
+    # Find the two most distanced nodes in the G graph
+    if nx.is_connected(G):
+        diameter = nx.diameter(G)
+    
+
+# Adjust the spacing between subplots
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
