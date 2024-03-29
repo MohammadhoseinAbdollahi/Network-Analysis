@@ -1,0 +1,42 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+# # Create an empty graph
+# G = nx.Graph()
+
+# # Add edges to the graph node by node
+# G.add_edge(1, 2)
+# G.add_edge(2, 3)
+# G.add_edge(3, 4)
+# G.add_edge(1, 4)
+
+# Import the GML file into the graph
+G = nx.read_gml('/Users/mohammadhosein/Library/CloudStorage/OneDrive-unige.it/SEM2-2024/NA/football/football.gml')
+# Compute and print basic graph properties
+# Write the graph properties to a text file
+with open('/Users/mohammadhosein/Library/CloudStorage/OneDrive-unige.it/SEM2-2024/NA/graph_properties.txt', 'w') as file:
+    file.write("Number of nodes: " + str(G.number_of_nodes()) + "\n")
+    file.write("Number of edges: " + str(G.number_of_edges()) + "\n")
+    file.write("Diameter: " + str(nx.diameter(G)) + "\n")
+    file.write("Adjacency list:\n")
+    file.write("edges list:\n" + str(list(G.edges())) + "\n")
+    for node, neighbors in G.adjacency():
+        file.write(str(node) + " " + str(list(neighbors)) + "\n")
+# Draw the graph
+# nx.draw(G, with_labels=True)
+# Plot the distribution of edge degrees
+# degree_sequence = [d for n, d in G.degree()]
+# plt.hist(degree_sequence, bins=10)
+# plt.xlabel('Degree')
+# plt.ylabel('Frequency')
+# plt.title('Edge Degree Distribution')
+# Plot the distribution of path lengths
+for i in  (G.nodes):
+    for j in (G.nodes):
+        path_lengths = [len(path) for path in nx.all_simple_paths(G, i,j )]
+plt.hist(path_lengths, bins=10)
+plt.xlabel('Path Length')
+plt.ylabel('Frequency')
+plt.title('Path Length Distribution')
+plt.show()

@@ -1,0 +1,40 @@
+# Python
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Number of nodes
+n = 100
+
+# Initialize the probability
+p = 0.005
+
+# Number of graphs
+num_graphs = 5
+
+# Create a figure and a grid of subplots
+fig, axs = plt.subplots(num_graphs, num_graphs, figsize=(15, 15))
+
+for i in range(num_graphs):
+    for j in range(num_graphs):
+        # Create an Erdős–Rényi random graph
+        G = nx.erdos_renyi_graph(n, p)
+        
+        # Compute the degree distribution
+        degree_sequence = [d for n, d in G.degree()]
+        
+        # Plot the degree distribution as a bar chart on the i-th subplot
+        axs[i, j].bar(np.arange(n), degree_sequence, alpha=0.1, color='b')
+        axs[i, j].set_title(f'p={p:.2f}')
+        
+        # Increase the probability
+        p += 0.05
+
+# Set the labels
+fig.text(0.5, 0.04, 'Node', ha='center')
+fig.text(0.04, 0.5, 'Degree', va='center', rotation='vertical')
+fig.suptitle('Degree Distribution of Erdős–Rényi Random Graphs')
+
+# Show the plot
+plt.tight_layout()
+plt.show()
