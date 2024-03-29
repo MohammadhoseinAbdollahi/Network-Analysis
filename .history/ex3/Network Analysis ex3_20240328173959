@@ -28,7 +28,7 @@ for i in range(num_graphs):
         axs[i, j].set_title(f'p={p:.2f}')
         
         # Increase the probability
-        p += 0.04
+        p += 0.05
 
 # Set the labels
 fig.text(0.5, 0.04, 'Node', ha='center')
