@@ -51,6 +51,11 @@ for i in range(num_graphs):
 fig.text(0.5, 0.04, 'Node', ha='center')
 fig.text(0.04, 0.5, 'Degree', va='center', rotation='vertical')
 fig.suptitle('Degree Distribution of Erdős–Rényi Random Graphs')
+
+# Compute metrics for each graph
+for i in range(num_graphs):
+    for j in range(num_graphs):
+        
         
       
 # Show the plot
