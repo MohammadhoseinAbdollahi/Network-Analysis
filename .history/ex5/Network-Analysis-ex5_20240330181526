@@ -26,13 +26,12 @@ print(f"Transitivity: {nx.transitivity(G)}")
     
 # Draw the graph
 degree_sequence = [d for n, d in G.degree()]
-degree_count = nx.degree_histogram(G)
-degree_probability = [count / sum(degree_count) for count in degree_count]
-plt.bar(range(len(degree_count)), degree_probability)
+plt.hist(degree_sequence, bins='auto', alpha=0.7)
+plt.xticks(range(0, max(degree_sequence)+1, 1))
+plt.yticks(range(0, 1, 0.1))
 plt.xlabel('Degree')
-plt.ylabel('p(k)')
+plt.ylabel('Frequency')
 plt.title('Degree Distribution')
 plt.show()
-
 
 # nx.draw(G, with_labels=True)

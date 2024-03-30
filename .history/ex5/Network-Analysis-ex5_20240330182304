@@ -33,6 +33,9 @@ plt.xlabel('Degree')
 plt.ylabel('p(k)')
 plt.title('Degree Distribution')
 plt.show()
-
+plt.xlabel('Degree')
+plt.ylabel('p(k)')
+plt.title('Degree Distribution')
+plt.show()
 
 # nx.draw(G, with_labels=True)

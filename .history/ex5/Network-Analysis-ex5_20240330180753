@@ -3,9 +3,9 @@ import random
 import matplotlib.pyplot as plt
 from networkx import triangular_lattice_graph
 
-m=50
+m=40
 
-n=50
+n=40
 
 G=triangular_lattice_graph(m, n, periodic=False, with_positions=True, create_using=None)
 
@@ -17,22 +17,19 @@ print(f"Transitivity: {nx.transitivity(G)}")
 print(f"Average clustering: {nx.average_clustering(G)}")
 diameter = nx.diameter(G)
 num_triangles = nx.triangles(G)
-#clustering_coefficient = nx.clustering(G)
+clustering_coefficient = nx.clustering(G)
 
 print(f"Diameter: {diameter}")
-print(f"Number of triangles: {len(num_triangles)}")
+print(f"Number of triangles: {num_triangles}")
 print(f"Transitivity: {nx.transitivity(G)}")
-#print(f"Clustering coefficient: {clustering_coefficient}")
+print(f"Clustering coefficient: {clustering_coefficient}")
+
+# Clustering coefficient of individual nodes
+for node in G.nodes():
+    node_clustering_coefficient = nx.clustering(G, node)
+    print(f"Clustering coefficient of node {node}: {node_clustering_coefficient}")
     
 # Draw the graph
-degree_sequence = [d for n, d in G.degree()]
-degree_count = nx.degree_histogram(G)
-degree_probability = [count / sum(degree_count) for count in degree_count]
-plt.bar(range(len(degree_count)), degree_probability)
-plt.xlabel('Degree')
-plt.ylabel('p(k)')
-plt.title('Degree Distribution')
+nx.draw()
+nx.draw(G, with_labels=True)
 plt.show()
-
-
-# nx.draw(G, with_labels=True)

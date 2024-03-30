@@ -1,0 +1,19 @@
+import networkx as nx
+import random
+import matplotlib.pyplot as plt
+from networkx import triangular_lattice_graph
+
+m=40
+
+n=40
+
+G=triangular_lattice_graph(m, n, periodic=False, with_positions=True, create_using=None)
+
+print(f"Number of nodes: {G.number_of_nodes()}")
+print(f"Number of edges: {G.number_of_edges()}")
+print(f"Average degree: {sum(dict(G.degree()).values()) / G.number_of_nodes():.2f}")
+print(f"Clustering coefficient: {nx.average_clustering(G):.2f}")
+print
+
+nx.draw(G, with_labels=True)
+plt.show()
