@@ -1,0 +1,41 @@
+
+Exercise num 1. Warm up
+With this first exercise we make some experience with a graph library. I will use NetworkX but you can use any other library of your choice
+
+Install NetworkX (see documentation at: https://networkx.org/documentation/stable/index.html)
+Select a graph (see for example https://networkx.org/documentation/stable/auto_examples/index.html#graph)
+Compute and print basic graph properties (e.g., number of nodes, number of links, diameter, adjacency list)
+Draw the graph
+Plot the degree distribution
+Repeat steps 1-5, reading a graph from an external file (see for example the dataset available at https://networkrepository.com/)
+
+
+Exercise num 2. Betweenness and Closeness
+With this second exercise we continue using the graph library.
+
+Take the graph used for the first exercise.
+Compute the betweenness centrality and the closeness centrality for the nodes.
+For each metric, print the top-10 nodes with their associated centrality values.
+Repeat steps 1-5, reading a graph from an external file (see for example http://networkrepository.com)
+
+
+Exercise num 3. Erdős-Rényi random graphs
+In this third exercise we learn how to work with syntectic models.
+
+We start by generating different Erdős-Rényi random graphs G(N,p) for different values of the parameters, e.g., by varying the number of vertices N or the probability p. 
+
+For each graph, compute some of the metrics we have already computed in previous exercises and check if it is connected. If the answer is yes, compute also its diameter.
+
+Plot the degree distribution.
+
+
+Exercise num 4. Erdős-Rényi random graphs (cnt)
+Consider an Erdős-Rényi random graph with N = 3000 nodes, connected to each other with probability p = 10-3 and then answer to the following questions.
+
+What is the expected number of links, 〈L〉?
+In which regime is the network?
+Calculate the probability pc so that the network is at the critical point.
+Given the linking probability p = 10-3, calculate the number of nodes Ncr so that the network has only one component.
+For the network in (4), calculate the average degree 〈kcr〉 and the average distance 〈d〉 between two randomly chosen nodes
+
+

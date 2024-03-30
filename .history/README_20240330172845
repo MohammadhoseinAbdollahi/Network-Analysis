@@ -1,0 +1,83 @@
+
+Exercise num 1. Warm up
+With this first exercise we make some experience with a graph library. I will use NetworkX but you can use any other library of your choice
+
+Install NetworkX (see documentation at: https://networkx.org/documentation/stable/index.html)
+Select a graph (see for example https://networkx.org/documentation/stable/auto_examples/index.html#graph)
+Compute and print basic graph properties (e.g., number of nodes, number of links, diameter, adjacency list)
+Draw the graph
+Plot the degree distribution
+Repeat steps 1-5, reading a graph from an external file (see for example the dataset available at https://networkrepository.com/)
+
+
+Exercise num 2. Betweenness and Closeness
+With this second exercise we continue using the graph library.
+
+Take the graph used for the first exercise.
+Compute the betweenness centrality and the closeness centrality for the nodes.
+For each metric, print the top-10 nodes with their associated centrality values.
+Repeat steps 1-5, reading a graph from an external file (see for example http://networkrepository.com)
+
+
+Exercise num 3. Erdős-Rényi random graphs
+In this third exercise we learn how to work with syntectic models.
+
+We start by generating different Erdős-Rényi random graphs G(N,p) for different values of the parameters, e.g., by varying the number of vertices N or the probability p. 
+
+For each graph, compute some of the metrics we have already computed in previous exercises and check if it is connected. If the answer is yes, compute also its diameter.
+
+Plot the degree distribution.
+
+
+Exercise num 4. Erdős-Rényi random graphs (cnt)
+Consider an Erdős-Rényi random graph with N = 3000 nodes, connected to each other with probability p = 10-3 and then answer to the following questions.
+
+What is the expected number of links, 〈L〉?
+In which regime is the network?
+Calculate the probability pc so that the network is at the critical point.
+Given the linking probability p = 10-3, calculate the number of nodes Ncr so that the network has only one component.
+For the network in (4), calculate the average degree 〈kcr〉 and the average distance 〈d〉 between two randomly chosen nodes
+
+
+
+Exercise num 5. Regular graphs and Watts-Strogatz model
+Regular graphs
+Take some regular graphs, for example a complete graph (clique) or a triangular lattice, and compute the diameter and other measures related to clustering, such as the number of triangles (triangles(G)), the transitivity (transitivity(G)), the clustering coefficient of the entire network or of individual nodes.
+
+Plot the degree distribution.
+
+Triangular lattice
+
+
+
+Triangular lattice obtained with NetworkxInterpret graphic with IMAGEInterpret graphic with IMAGE
+
+
+Degree distribution of the triangular latticeInterpret graphic with IMAGEInterpret graphic with IMAGE
+
+Triangular lattice
+Number of nodes: 2626
+Number of edges: 7625
+Min degree: 2
+Max degree: 6
+Transitivity: 0.40297665421916556
+Average clustering: 0.41254125412540116
+Note on graph layout
+"NetworkX provides basic functionality for visualizing graphs, but its main goal is to enable graph analysis rather than perform graph visualization. In the future, graph visualization functionality may be removed from NetworkX or only available as an add-on package."
+See https://networkx.org/documentation/stable/reference/drawing.html
+
+We can learn a lot about a network by drawing and inspecting its graphical representation.  This requires a layout algorithm that places every node on a plane.  The most popular class of network layout algorithms are force-directed layout algorithms. The goals of a force-directed layout algorithm are to place the nodes so that connected nodes are positioned close to each other, all links are of similar length, and the number of link crossings is minimized.
+
+These algorithms start from a random position for all nodes in the network and then simulate a phisycal system in which nodes minimize the "energy" of the system. As a result, connected nodes will move toward each other and away from nodes not connected to them. Due to the initial random position of the nodes, when running for several times the same algorithm on the same graph, the resulting layouts will always be different (unless we fix node positions, see NetworkX documentation).
+
+Watts-Strogatz model
+Reuse the code developed for regular graphs and run it on the Watts-Strogatz model. Use the circle layout for this model.
+Notice that different implementations exist in NetworkX, as you can see at the following links:
+
+.../stable/reference/generated/networkx.generators.random_graphs.watts_strogatz_graph.html
+.../stable/reference/generated/networkx.generators.random_graphs.newman_watts_strogatz_graph.html
+.../stable/reference/generated/networkx.generators.random_graphs.connected_watts_strogatz_graph.html
+
+Comparison between Watts-Strogatz and G(N,M)
+Generate two random graphs with the same number of nodes N and the same number of links M and compare their characteristics as we have seen in class.
+

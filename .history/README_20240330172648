@@ -1,0 +1,11 @@
+
+Exercise num 1. Warm up
+With this first exercise we make some experience with a graph library. I will use NetworkX but you can use any other library of your choice
+
+Install NetworkX (see documentation at: https://networkx.org/documentation/stable/index.html)
+Select a graph (see for example https://networkx.org/documentation/stable/auto_examples/index.html#graph)
+Compute and print basic graph properties (e.g., number of nodes, number of links, diameter, adjacency list)
+Draw the graph
+Plot the degree distribution
+Repeat steps 1-5, reading a graph from an external file (see for example the dataset available at https://networkrepository.com/)
+

@@ -35,28 +35,7 @@ fig.text(0.5, 0.04, 'Node', ha='center')
 fig.text(0.04, 0.5, 'Degree', va='center', rotation='vertical')
 fig.suptitle('Degree Distribution of Erdős–Rényi Random Graphs')
 
-# Compute metrics for each graph
-for i in range(num_graphs):
-    for j in range(num_graphs):
-        # Create an Erdős–Rényi random graph
-        G = nx.erdos_renyi_graph(n, p)
-        
-        # Compute metrics
-        average_degree = np.mean([d for n, d in G.degree()])
-        clustering_coefficient = nx.average_clustering(G)
-        assortativity_coefficient = nx.degree_assortativity_coefficient(G)
-        is_connected = nx.is_connected(G)
-        diameter = nx.diameter(G) if is_connected else None
-        
-        # Print the metrics
-        print(f"Graph {i+1}-{j+1}:")
-        print(f"Average Degree: {average_degree}")
-        print(f"Clustering Coefficient: {clustering_coefficient}")
-        print(f"Assortativity Coefficient: {assortativity_coefficient}")
-        print(f"Is Connected: {is_connected}")
-        if is_connected:
-            print(f"Diameter: {diameter}")
-        print()
+
 # Show the plot
 plt.tight_layout()
 plt.show()

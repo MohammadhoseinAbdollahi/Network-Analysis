@@ -1,0 +1,15 @@
+# Define the number of vertices in the graph
+num_vertices = 5
+
+# Create an empty adjacency matrix
+adj_matrix = [[0] * num_vertices for _ in range(num_vertices)]
+
+# Fill the adjacency matrix to represent the clique graph
+for i in range(num_vertices):
+    for j in range(i + 1, num_vertices):
+        adj_matrix[i][j] = 1
+        adj_matrix[j][i] = 1
+
+# Print the adjacency matrix
+for row in adj_matrix:
+    print(row)
