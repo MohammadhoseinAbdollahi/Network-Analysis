@@ -1,119 +1,93 @@
-## Exercise num 1. Warm up
+# Network Analysis Exercises
 
-With this first exercise we make some experience with a graph library. I will use NetworkX but you can use any other library of your choice
+This repository contains a series of exercises designed to familiarize you with the NetworkX library for network analysis and graph theory. Each exercise builds on the previous one, covering various aspects of graph properties, centrality measures, random graph models, and synthetic graph models.
 
-- Install NetworkX (see documentation at: [https://networkx.org/documentation/stable/index.html](https://networkx.org/documentation/stable/index.html))
-- Select a graph (see for example [https://networkx.org/documentation/stable/auto_examples/index.html#graph](https://networkx.org/documentation/stable/auto_examples/index.html#graph))
-- Compute and print basic graph properties (e.g., number of nodes, number of links, diameter, adjacency list)
-- Draw the graph
-- Plot the degree distribution
+## Prerequisites
 
-Repeat steps 1-5, reading a graph from an external file (see for example the dataset available at [https://networkrepository.com/](https://networkrepository.com/))
+- Install NetworkX: Follow the [NetworkX documentation](https://networkx.org/documentation/stable/index.html) for installation instructions.
 
+## Exercises
 
-## Exercise num 2. Betweenness and Closeness
+### Exercise 1: Warm Up
 
-With this second exercise we continue using the graph library.
+1. **Select a Graph**: Choose a graph from the [NetworkX examples](https://networkx.org/documentation/stable/auto_examples/index.html#graph).
+2. **Compute and Print Basic Properties**: Determine and display the number of nodes, number of links, diameter, and adjacency list of the graph.
+3. **Draw the Graph**: Visualize the graph.
+4. **Plot Degree Distribution**: Create a plot showing the degree distribution.
 
-- Take the graph used for the first exercise.
-- Compute the betweenness centrality and the closeness centrality for the nodes.
-- For each metric, print the top-10 nodes with their associated centrality values.
+**Repeat Steps 1-4** using a graph loaded from an external file (datasets available at [Network Repository](https://networkrepository.com/)).
 
-Repeat steps 1-5, reading a graph from an external file (see for example [http://networkrepository.com](http://networkrepository.com))
+### Exercise 2: Betweenness and Closeness
 
+1. **Use the Graph from Exercise 1**.
+2. **Compute Centrality Measures**:
+    - Betweenness Centrality
+    - Closeness Centrality
+3. **Print Top-10 Nodes**: For each metric, display the top-10 nodes and their associated centrality values.
 
-## Exercise num 3. Erdős-Rényi random graphs
+**Repeat Steps 1-3** using a graph loaded from an external file (datasets available at [Network Repository](https://networkrepository.com)).
 
-In this third exercise we learn how to work with syntectic models.
+### Exercise 3: Erdős-Rényi Random Graphs
 
-- Generate different Erdős-Rényi random graphs G(N,p) for different values of the parameters, e.g., by varying the number of vertices N or the probability p. 
-- For each graph, compute some of the metrics we have already computed in previous exercises and check if it is connected. If the answer is yes, compute also its diameter.
-- Plot the degree distribution.
+1. **Generate Erdős-Rényi Graphs**: Create different Erdős-Rényi random graphs \( G(N, p) \) by varying the number of vertices \( N \) and the probability \( p \).
+2. **Compute Metrics and Connectivity**: For each graph, compute basic metrics and check if it is connected. If connected, compute its diameter.
+3. **Plot Degree Distribution**: Visualize the degree distribution of each graph.
 
+### Exercise 4: Erdős-Rényi Random Graphs (Continued)
 
-## Exercise num 4. Erdős-Rényi random graphs (cnt)
+1. **Expected Number of Links**: Calculate the expected number of links \( \langle L \rangle \).
+2. **Network Regime**: Determine the regime of the network.
+3. **Critical Probability \( p_c \)**: Compute the probability \( p_c \) so that the network is at the critical point.
+4. **Critical Number of Nodes \( N_{cr} \)**: Calculate the number of nodes \( N_{cr} \) so that the network has only one component given \( p = 10^{-3} \).
+5. **Average Degree and Distance**: For the network in step 4, calculate the average degree \( \langle k_{cr} \rangle \) and the average distance \( \langle d \rangle \) between two randomly chosen nodes.
 
-Consider an Erdős-Rényi random graph with N = 3000 nodes, connected to each other with probability p = 10-3 and then answer to the following questions.
+### Exercise 5: Regular Graphs and Watts-Strogatz Model
 
-- What is the expected number of links, 〈L〉?
-- In which regime is the network?
-- Calculate the probability pc so that the network is at the critical point.
-- Given the linking probability p = 10-3, calculate the number of nodes Ncr so that the network has only one component.
-- For the network in (4), calculate the average degree 〈kcr〉 and the average distance 〈d〉 between two randomly chosen nodes
+#### Regular Graphs
 
+1. **Choose Regular Graphs**: For example, a complete graph (clique) or a triangular lattice.
+2. **Compute Metrics**: Calculate the diameter, number of triangles, transitivity, and clustering coefficient.
+3. **Plot Degree Distribution**: Visualize the degree distribution.
 
-## Exercise num 5. Regular graphs and Watts-Strogatz model
+#### Triangular Lattice
 
-### Regular graphs
+1. **Triangular Lattice Visualization**: Obtain and interpret the triangular lattice graph.
+2. **Degree Distribution**: Analyze and interpret the degree distribution.
+3. **Metrics**:
+    - Number of nodes: 2626
+    - Number of edges: 7625
+    - Min degree: 2
+    - Max degree: 6
+    - Transitivity: 0.40297665421916556
+    - Average clustering: 0.41254125412540116
 
-Take some regular graphs, for example a complete graph (clique) or a triangular lattice, and compute the diameter and other measures related to clustering, such as the number of triangles (triangles(G)), the transitivity (transitivity(G)), the clustering coefficient of the entire network or of individual nodes.
+**Note**: NetworkX provides basic functionality for visualizing graphs. Future visualization functionality may be removed or made available as an add-on package. See [NetworkX drawing documentation](https://networkx.org/documentation/stable/reference/drawing.html).
 
-- Plot the degree distribution.
+#### Watts-Strogatz Model
 
-### Triangular lattice
+1. **Reuse Code from Regular Graphs**: Apply the code developed for regular graphs to the Watts-Strogatz model using a circle layout.
+2. **Compare with \( G(N, M) \)**: Generate two random graphs with the same number of nodes \( N \) and links \( M \) and compare their characteristics.
 
-Triangular lattice obtained with Networkx
+### Exercise 6: Configuration and Barabási-Albert Models
 
-![Triangular lattice](IMAGE)
+#### Configuration Model
 
-Interpret graphic with IMAGE
+1. **Define Degree Sequence**: Create a degree sequence.
+2. **Create MultiGraph**: Generate a random pseudograph matching the degree sequence.
+3. **Remove Self Loops**: Use `remove_edges_from()` and `selfloop_edges()`.
+4. **Remove Multi Edges**: Convert to a simple graph.
+5. **Print Information**: Display information about the resulting graphs.
 
-Degree distribution of the triangular lattice
+**Repeat from Step 1** with different degree sequences.
 
-![Degree distribution of the triangular lattice](IMAGE)
+#### Barabási-Albert Model
 
-Interpret graphic with IMAGE
+1. **Generate Networks**: Create Barabási-Albert networks for different parameters.
+2. **Compute Metrics**: Measure the degree of important hubs, global clustering, and diameter.
+3. **Degree Distribution**: Analyze the histogram and plot in log-log scale.
 
-- Number of nodes: 2626
-- Number of edges: 7625
-- Min degree: 2
-- Max degree: 6
-- Transitivity: 0.40297665421916556
-- Average clustering: 0.41254125412540116
+## Additional Information
 
-Note on graph layout
+For more details and usage of the NetworkX library, refer to the [NetworkX documentation](https://networkx.org/documentation/stable/index.html).
 
-"NetworkX provides basic functionality for visualizing graphs, but its main goal is to enable graph analysis rather than perform graph visualization. In the future, graph visualization functionality may be removed from NetworkX or only available as an add-on package."
-
-See [https://networkx.org/documentation/stable/reference/drawing.html](https://networkx.org/documentation/stable/reference/drawing.html)
-
-We can learn a lot about a network by drawing and inspecting its graphical representation.  This requires a layout algorithm that places every node on a plane.  The most popular class of network layout algorithms are force-directed layout algorithms. The goals of a force-directed layout algorithm are to place the nodes so that connected nodes are positioned close to each other, all links are of similar length, and the number of link crossings is minimized.
-
-These algorithms start from a random position for all nodes in the network and then simulate a phisycal system in which nodes minimize the "energy" of the system. As a result, connected nodes will move toward each other and away from nodes not connected to them. Due to the initial random position of the nodes, when running for several times the same algorithm on the same graph, the resulting layouts will always be different (unless we fix node positions, see NetworkX documentation).
-
-### Watts-Strogatz model
-
-Reuse the code developed for regular graphs and run it on the Watts-Strogatz model. Use the circle layout for this model.
-
-Notice that different implementations exist in NetworkX, as you can see at the following links:
-
-- .../stable/reference/generated/networkx.generators.random_graphs.watts_strogatz_graph.html
-- .../stable/reference/generated/networkx.generators.random_graphs.newman_watts_strogatz_graph.html
-- .../stable/reference/generated/networkx.generators.random_graphs.connected_watts_strogatz_graph.html
-
-Comparison between Watts-Strogatz and G(N,M)
-
-Generate two random graphs with the same number of nodes N and the same number of links M and compare their characteristics as we have seen in class.
-
-
-## Exercise num 6. Configuration and Barabási-Albert models
-
-### Configuration model
-
-Use the NetworkX function configuration model() to generate a "random pseudograph (graph with parallel edges and self loops) by randomly assigning edges to match the given degree sequence." 
-
-- Define a degree sequence
-- Create the multi graph and print some information
-- Delete the self loops (see remove_edges_from() and selfloop_edges())
-- Print some information on the new graph without self loops
-- Delete also multi edges (see Graph)
-- Print some information on the simple graph
-- Repeat starting from step 1
-
-### Barabási-Albert model
-
-Generate Barabási-Albert networks for different values of the parameters using one of the functions provided by the NetworkX library, see for example barabasi_albert_graph().
-
-- Compute measures like the degree of the most important hubs, global clustering or the diameter of the resulting networks
-- Build and analyse the histogram of the degree distribution
-- Plot in log-log scale
+Feel free to contribute to this repository by adding new exercises or improving existing ones.
