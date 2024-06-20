@@ -1,5 +1,4 @@
 import networkx as nx
-import graph_tool.all as gt
 import matplotlib.pyplot as plt
 
 # Load the dataset
@@ -11,8 +10,9 @@ print("Number of nodes:", graph.number_of_nodes())
 # Print the number of edges
 print("Number of edges:", graph.number_of_edges())
 
-# Draw the graph
-gt.graph_draw(graph, output_size=(1000, 1000), vertex_size=2, edge_pen_width=0.2, output="large_graph.png")
+# # Draw the graph
+# nx.draw(graph, with_labels=False)
+# plt.show()
 
 # # Compute the degree distribution
 # degree_sequence = [d for n, d in graph.degree()]
@@ -39,8 +39,8 @@ plt.bar(degrees, counts)
 plt.xlabel('Degree')
 plt.ylabel('Frequency')
 plt.title('Degree Distribution')
-plt.xticks(range(0, 155, 5))
-plt.xlim(0, 155)  # Set the x-axis limits
+plt.xticks(range(0, 150, 5))
+plt.xlim(0, 150)  # Set the x-axis limits
 plt.show()
 
 

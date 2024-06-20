@@ -1,4 +1,6 @@
 import networkx as nx
+import pygraphviz as pgv
+from networkx.drawing.nx_agraph import graphviz_layout
 import graph_tool.all as gt
 import matplotlib.pyplot as plt
 
@@ -11,8 +13,11 @@ print("Number of nodes:", graph.number_of_nodes())
 # Print the number of edges
 print("Number of edges:", graph.number_of_edges())
 
-# Draw the graph
-gt.graph_draw(graph, output_size=(1000, 1000), vertex_size=2, edge_pen_width=0.2, output="large_graph.png")
+# Draw the graph using Graphviz
+pos = graphviz_layout(graph, prog="sfdp")
+plt.figure(figsize=(10, 10))
+nx.draw(graph, pos, node_size=10, with_labels=False)
+plt.show()
 
 # # Compute the degree distribution
 # degree_sequence = [d for n, d in graph.degree()]

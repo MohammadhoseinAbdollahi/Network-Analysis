@@ -1,5 +1,6 @@
 import networkx as nx
-import graph_tool.all as gt
+import pygraphviz as pgv
+from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 
 # Load the dataset
@@ -12,7 +13,10 @@ print("Number of nodes:", graph.number_of_nodes())
 print("Number of edges:", graph.number_of_edges())
 
 # Draw the graph
-gt.graph_draw(graph, output_size=(1000, 1000), vertex_size=2, edge_pen_width=0.2, output="large_graph.png")
+plt.figure(figsize=(10, 10))  # Set the figure size to make it larger
+pos = nx.spring_layout(graph)  # Compute the node positions using a spring layout
+nx.draw(graph, pos, with_labels=False, node_size=10)  # Draw the graph with smaller node size
+plt.show()
 
 # # Compute the degree distribution
 # degree_sequence = [d for n, d in graph.degree()]
