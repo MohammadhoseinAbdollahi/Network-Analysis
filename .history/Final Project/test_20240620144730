@@ -1,0 +1,42 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Load the dataset
+graph = nx.read_edgelist('soc-gemsec-HR.edges', delimiter=',')
+
+# Print the number of nodes
+print("Number of nodes:", graph.number_of_nodes())
+
+# Print the number of edges
+print("Number of edges:", graph.number_of_edges())
+
+# Draw the graph
+nx.draw(graph, with_labels=False)
+plt.show()
+
+# Compute the degree distribution
+degree_sequence = [d for n, d in graph.degree()]
+plt.hist(degree_sequence, bins=10)
+plt.xlabel('Degree')
+plt.ylabel('Frequency')
+plt.title('Edge Degree Distribution')
+plt.show()
+
+
+
+# # If you want to compute the diameter, be aware that this is expensive for large graphs
+# # diameter = nx.diameter(graph)
+# # print("Diameter:", diameter)
+
+# # Compute the distribution of shortest path lengths
+# # This will be more efficient than all simple paths, but still can be slow for large graphs
+# all_shortest_path_lengths = []
+# for node in graph.nodes:
+#     lengths = dict(nx.shortest_path_length(graph, source=node)).values()
+#     all_shortest_path_lengths.extend(lengths)
+
+# plt.hist(all_shortest_path_lengths, bins=10)
+# plt.xlabel('Path Length')
+# plt.ylabel('Frequency')
+# plt.title('Shortest Path Length Distribution')
+# plt.show()
