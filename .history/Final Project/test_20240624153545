@@ -1,0 +1,68 @@
+import json
+
+# Step 1: Define Data Structures
+category_followers = {}
+
+# Step 2: Parse JSON File
+with open('Final Project/SOC-GEMSEC-HR.JSON', 'r') as json_file:
+    node_categories = json.load(json_file)
+
+# Step 3: Process Data
+for node, categories in node_categories.items():
+    for category in categories:
+        if category not in category_followers:
+            category_followers[category] = []
+        category_followers[category].append(node)
+
+# Step 4: Parse Edges File and Update Data
+with open('SOC-GEMSEC-HR.EDGES', 'r') as edges_file:
+    for line in edges_file:
+        source, target = line.strip().split(',')
+        if source in node_categories:
+            for category in node_categories[source]:
+                if target not in category_followers[category]:
+                    category_followers[category].append(target)
+
+# Step 5: Create Graph
+# Assuming a simple graph structure where each node is connected to its categories
+graph = {}
+for category, followers in category_followers.items():
+    graph[category] = followers
+
+# Step 6: Output (For demonstration, printing the graph structure)
+print(json.dumps(graph, indent=4))
+
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Assuming the previous steps have been completed and `category_followers` is populated
+
+# Create a new graph
+G = nx.Graph()
+
+# Add nodes and edges
+for category, followers in category_followers.items():
+    G.add_node(category, node_color='red')  # Mark category nodes with a different color
+    for follower in followers:
+        G.add_node(follower)
+        G.add_edge(category, follower)
+
+# Drawing the graph
+pos = nx.spring_layout(G)  # positions for all nodes
+
+# Nodes
+nx.draw_networkx_nodes(G, pos, node_size=700, node_color='skyblue', label='Followers')
+nx.draw_networkx_nodes(G, pos, nodelist=category_followers.keys(), node_size=1000, node_color='red', label='Categories')
+
+# Edges
+nx.draw_networkx_edges(G, pos, width=2)
+
+# Labels
+nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+
+plt.axis('off')  # Turn off the axis
+plt.legend(scatterpoints=1)  # Show legend with only 1 point
+
+# Show plot
+plt.show()

@@ -1,0 +1,66 @@
+import networkx as nx
+import numpy as np
+# import graph_tool.all as gt
+import matplotlib.pyplot as plt
+
+# Load the dataset
+graph = nx.read_edgelist('Final Project/soc-gemsec-HR.edges', delimiter=',')
+
+# Print the number of nodes
+print("Number of nodes:", graph.number_of_nodes())
+
+# Print the number of edges
+print("Number of edges:", graph.number_of_edges())
+
+# # Draw the graph
+# gt.graph_draw(graph, output_size=(1000, 1000), vertex_size=2, edge_pen_width=0.2, output="large_graph.png")
+
+# # Compute the degree distribution
+# degree_sequence = [d for n, d in graph.degree()]
+# plt.hist(degree_sequence, bins=range(0, 140))
+# plt.xlabel('Degree')
+# plt.ylabel('Frequency')
+# plt.xticks(range(0, 140, 3))
+# plt.title('Edge Degree Distribution')
+# plt.show()
+
+# # Compute the degree distribution
+# degree_sequence = [d for n, d in graph.degree()]
+# degree_count = {}
+# for degree in degree_sequence:
+#     if degree in degree_count:
+#         degree_count[degree] += 1
+#     else:
+#         degree_count[degree] = 1
+
+# degrees = list(degree_count.keys())
+# counts = list(degree_count.values())
+
+# plt.bar(degrees, counts)
+# plt.xlabel('Degree')
+# plt.ylabel('Frequency')
+# plt.title('Degree Distribution')
+# plt.xticks(range(0, 155, 5))
+# plt.xlim(0, 155)  # Set the x-axis limits
+# plt.show()
+
+
+
+# # If you want to compute the diameter, be aware that this is expensive for large graphs
+# diameter = nx.diameter(graph)
+# print("Diameter:", diameter)
+
+# Compute the distribution of shortest path lengths
+# This will be more efficient than all simple paths, but still can be slow for large graphs
+all_shortest_path_lengths = []
+for node in graph.nodes:
+    lengths = dict(nx.shortest_path_length(graph, source=node)).values()
+    all_shortest_path_lengths.extend(lengths)
+    print
+unique_lengths, counts = np.unique(all_shortest_path_lengths, return_counts=True)
+
+plt.bar(unique_lengths, counts)
+plt.xlabel('Path Length')
+plt.ylabel('Frequency')
+plt.title('Shortest Path Length Distribution')
+plt.show()

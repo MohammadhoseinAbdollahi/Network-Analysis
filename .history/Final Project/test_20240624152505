@@ -1,0 +1,43 @@
+import pandas as pd
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Load edges data
+edges_path = "Final Project/soc-gemsec-HR.edges"
+edges_df = pd.read_csv(edges_path, delim_whitespace=True, header=None, names=["source", "target"])
+
+# Load JSON data
+json_path = "soc-gemsec-HR.json"
+with open(json_path) as json_file:
+    category_data = json.load(json_file)
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Add edges to the graph
+for _, row in edges_df.iterrows():
+    G.add_edge(row['source'], row['target'])
+
+# Create a set of all unique categories
+all_categories = set(cat for categories in category_data.values() for cat in categories)
+
+# Create a central node for each category
+category_nodes = {category: f"category_{i}" for i, category in enumerate(all_categories)}
+for category, node in category_nodes.items():
+    G.add_node(node, label=category, color='red')
+
+# Connect follower nodes to their respective category nodes
+for follower, categories in category_data.items():
+    for category in categories:
+        G.add_edge(follower, category_nodes[category])
+
+# Visualize the graph
+pos = nx.spring_layout(G)
+colors = [G.nodes[node].get('color', 'blue') for node in G.nodes]
+labels = nx.get_node_attributes(G, 'label')
+
+plt.figure(figsize=(12, 12))
+nx.draw(G, pos, node_color=colors, with_labels=True, labels=labels, node_size=50, font_size=8, alpha=0.6)
+plt.title("Network Graph of Nodes and Their Categories")
+plt.show()

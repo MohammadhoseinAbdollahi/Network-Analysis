@@ -1,0 +1,73 @@
+# import json
+
+# # Step 1: Define Data Structures
+# category_followers = {}
+
+# # Step 2: Parse JSON File
+# with open('Final Project/SOC-GEMSEC-HR.JSON', 'r') as json_file:
+#     node_categories = json.load(json_file)
+
+# # Step 3: Process Data
+# for node, categories in node_categories.items():
+#     for category in categories:
+#         if category not in category_followers:
+#             category_followers[category] = []
+#         category_followers[category].append(node)
+
+# # Step 4: Parse Edges File and Update Data
+# with open('Final Project/SOC-GEMSEC-HR.EDGES', 'r') as edges_file:
+#     for line in edges_file:
+#         source, target = line.strip().split(',')
+#         if source in node_categories:
+#             for category in node_categories[source]:
+#                 if target not in category_followers[category]:
+#                     category_followers[category].append(target)
+
+# # Step 5: Create Graph
+# # Assuming a simple graph structure where each node is connected to its categories
+# graph = {}
+# for category, followers in category_followers.items():
+#     graph[category] = followers
+
+# # Step 6: Output (For demonstration, printing the graph structure)
+# print(json.dumps(graph, indent=4))
+# # Step 7: Save Graph as JSON
+# graph_json = json.dumps(graph)
+# with open('graph.json', 'w') as json_file:
+#     json_file.write(graph_json)
+
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+import random
+
+# Step 1: Load the JSON file
+with open('Final Project/graph.json', 'r') as file:
+    data = json.load(file)
+
+# Step 2: Create a graph
+G = nx.Graph()
+for node, neighbors in data.items():
+    for neighbor in neighbors:
+        G.add_edge(node, neighbor)
+        print(node, neighbor)
+# Convert graph nodes to a list for sampling
+all_nodes = list(G.nodes())
+
+# Define the sample size
+sample_size = 1000  # Adjust this value as needed
+
+# Ensure the sample size is not larger than the number of nodes in the graph
+sample_size = min(sample_size, len(all_nodes))
+
+# Sample a subset of nodes
+sampled_nodes = random.sample(all_nodes, sample_size)
+
+# Create a subgraph with the sampled nodes
+subgraph = G.subgraph(sampled_nodes)
+
+# Plot the subgraph
+plt.figure(figsize=(10, 10))  # Adjust the figure size as needed
+nx.draw(subgraph, with_labels=True, node_size=50, edge_color="gray", linewidths=0.5)
+plt.title("Sampled Subgraph")
+plt.show()
