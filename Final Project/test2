@@ -7,16 +7,33 @@ import seaborn as sns
 import imageio
 
 # Load the graph
-graph = nx.read_edgelist('Final Project/soc-gemsec-HR.edges')
+graph = nx.read_edgelist('Final Project/soc-gemsec-HR.edges',delimiter=',')
+print(nx.number_of_nodes(graph))
+# Extract a smaller subgraph by random sampling
+num_nodes_in_subgraph = 100
+subgraph_nodes = list(graph.nodes())[:num_nodes_in_subgraph]
+G_sub = graph.subgraph(subgraph_nodes).copy()
 
-# Select a subgraph with 30 nodes
-selected_nodes = random.sample(list(graph.nodes), 30)
-subgraph = graph.subgraph(selected_nodes)
+# Find the connected components in the subgraph
+components = list(nx.connected_components(G_sub))
+
+# Find the largest connected component (the giant component)
+giant_component = max(components, key=len)
+
+subgraph =  G_sub.subgraph(giant_component).copy()
+
+# Print the number of nodes and edges in the subgraph
+print(f'Number of nodes in the subgraph: {subgraph.number_of_nodes()}')
+print(f'Number of edges in the subgraph: {subgraph.number_of_edges()}')
+# draw the graph
+pos = nx.spring_layout(subgraph)
+
+
 
 # Set parameters
-num_gossipers = 3
-num_malicious = 3
-threshold = 0.3
+num_gossipers = 2
+num_malicious = 5
+threshold = 0.2
 
 # Initialize gossipers and malicious nodes
 gossipers = random.sample(list(subgraph.nodes), num_gossipers)
@@ -38,11 +55,11 @@ def spread_information(graph, info_dict, gossipers, malicious, threshold):
         colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in graph.nodes]
         node_colors = [colors[i] if info_dict[node] is None else 'yellow' if info_dict[node] == 'tampered info' else 'cyan' for i, node in enumerate(graph.nodes)]
         plt.figure(figsize=(8, 6))
-        nx.draw(graph, pos, node_color=node_colors, with_labels=True, node_size=300)
+        nx.draw(graph, pos, node_color=node_colors, with_labels=False, node_size=100)
         plt.title(f'Step {step}')
-        plt.savefig(f'/mnt/data/step_{step}.png')
+        plt.savefig(f'Final Project/Frames/step_{step}.png')
         plt.close()
-        frames.append(imageio.imread(f'/mnt/data/step_{step}.png'))
+        frames.append(imageio.imread(f'Final Project/Frames/step_{step}.png'))
 
     draw_frame(info_dict, 0)
     new_info_dict = info_dict.copy()
@@ -70,7 +87,7 @@ def spread_information(graph, info_dict, gossipers, malicious, threshold):
 final_info_dict, frames = spread_information(subgraph, info_dict, gossipers, malicious, threshold)
 
 # Save frames as a GIF
-imageio.mimsave('/mnt/data/information_spread.gif', frames, duration=1)
+imageio.mimsave('Final Project/Frames/information_spread.gif', frames, duration=1)
 
 # Analyze the results
 info_list = list(final_info_dict.values())

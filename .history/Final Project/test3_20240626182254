@@ -1,0 +1,107 @@
+import networkx as nx
+
+# Load the graph
+graph = nx.read_edgelist('Final Project/soc-gemsec-HR.edges',delimiter=',')
+
+# Extract the largest connected component
+largest_cc = max(nx.connected_components(graph), key=len)
+giant_component = graph.subgraph(largest_cc).copy()
+
+# Extract a smaller subgraph by random sampling
+num_nodes_in_subgraph = 100
+subgraph_nodes = list(graph.nodes())[:num_nodes_in_subgraph]
+G_sub = graph.subgraph(subgraph_nodes).copy()
+
+# Find the connected components in the subgraph
+components = list(nx.connected_components(G_sub))
+
+# Find the largest connected component (the giant component)
+giant_component = max(components, key=len)
+
+subgraph =  G_sub.subgraph(giant_component).copy()
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def remove_nodes_and_measure_giant_component(graph, nodes_to_remove):
+    sizes_of_giant_component = []
+    G = graph.copy()
+    initial_size = len(max(nx.connected_components(G), key=len))
+    sizes_of_giant_component.append(initial_size / initial_size)
+
+    for node in nodes_to_remove:
+        G.remove_node(node)
+        if len(G) == 0:
+            sizes_of_giant_component.append(0)
+        else:
+            giant_component_size = len(max(nx.connected_components(G), key=len))
+            sizes_of_giant_component.append(giant_component_size / initial_size)
+
+    return sizes_of_giant_component
+
+# Random failures
+num_nodes = len(subgraph.nodes)
+random_nodes = np.random.permutation(giant_component.nodes)
+
+sizes_random_failures = remove_nodes_and_measure_giant_component(giant_component, random_nodes)
+
+# Targeted attacks: Highest degree nodes
+degree_sorted_nodes = sorted(giant_component.degree, key=lambda x: x[1], reverse=True)
+degree_sorted_nodes = [node for node, _ in degree_sorted_nodes]
+
+sizes_targeted_attacks_degree = remove_nodes_and_measure_giant_component(giant_component, degree_sorted_nodes)
+
+# Targeted attacks: Highest betweenness nodes
+betweenness_sorted_nodes = sorted(nx.betweenness_centrality(giant_component).items(), key=lambda x: x[1], reverse=True)
+betweenness_sorted_nodes = [node for node, _ in betweenness_sorted_nodes]
+
+sizes_targeted_attacks_betweenness = remove_nodes_and_measure_giant_component(giant_component, betweenness_sorted_nodes)
+
+# Targeted attacks: Highest pagerank nodes
+pagerank_sorted_nodes = sorted(nx.pagerank(giant_component).items(), key=lambda x: x[1], reverse=True)
+pagerank_sorted_nodes = [node for node, _ in pagerank_sorted_nodes]
+
+sizes_targeted_attacks_pagerank = remove_nodes_and_measure_giant_component(giant_component, pagerank_sorted_nodes)
+
+# Plot results
+plt.figure(figsize=(10, 6))
+plt.plot(sizes_random_failures, label='Random Failures')
+plt.plot(sizes_targeted_attacks_degree, label='Targeted Attacks (Degree)')
+plt.plot(sizes_targeted_attacks_betweenness, label='Targeted Attacks (Betweenness)')
+plt.plot(sizes_targeted_attacks_pagerank, label='Targeted Attacks (Pagerank)')
+plt.xlabel('Number of Nodes Removed')
+plt.ylabel('Size of Giant Component (Normalized)')
+plt.legend()
+plt.title('Network Robustness under Different Attack Strategies')
+plt.show()
+
+
+def add_edges_to_improve_robustness(graph, num_edges):
+    # Example strategy: connect nodes with the highest degree to form a ring
+    degree_sorted_nodes = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+    top_nodes = [node for node, _ in degree_sorted_nodes[:num_edges]]
+
+    for i in range(len(top_nodes)):
+        for j in range(i + 1, len(top_nodes)):
+            if not graph.has_edge(top_nodes[i], top_nodes[j]):
+                graph.add_edge(top_nodes[i], top_nodes[j])
+
+# Calculate the critical threshold
+def calculate_critical_threshold(graph):
+    largest_cc = max(nx.connected_components(graph), key=len)
+    giant_component = graph.subgraph(largest_cc).copy()
+    avg_degree = np.mean([d for n, d in giant_component.degree()])
+    return 1 - 1 / avg_degree
+
+# Original graph's critical threshold
+original_threshold = calculate_critical_threshold(giant_component)
+print(f'Original Critical Threshold: {original_threshold}')
+
+# Improve robustness by adding edges
+improved_graph = giant_component.copy()
+add_edges_to_improve_robustness(improved_graph, 3)
+
+# Improved graph's critical threshold
+improved_threshold = calculate_critical_threshold(improved_graph)
+print(f'Improved Critical Threshold: {improved_threshold}')
+
