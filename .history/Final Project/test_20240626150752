@@ -1,0 +1,116 @@
+# import json
+
+# # Step 1: Define Data Structures
+# category_followers = {}
+
+# # Step 2: Parse JSON File
+# with open('Final Project/SOC-GEMSEC-HR.JSON', 'r') as json_file:
+#     node_categories = json.load(json_file)
+
+# # Step 3: Process Data
+# for node, categories in node_categories.items():
+#     for category in categories:
+#         if category not in category_followers:
+#             category_followers[category] = []
+#         category_followers[category].append(node)
+
+# # Step 4: Parse Edges File and Update Data
+# with open('Final Project/SOC-GEMSEC-HR.EDGES', 'r') as edges_file:
+#     for line in edges_file:
+#         source, target = line.strip().split(',')
+#         if source in node_categories:
+#             for category in node_categories[source]:
+#                 if target not in category_followers[category]:
+#                     category_followers[category].append(target)
+
+# # Step 5: Create Graph
+# # Assuming a simple graph structure where each node is connected to its categories
+# graph = {}
+# for category, followers in category_followers.items():
+#     graph[category] = followers
+
+# # Step 6: Output (For demonstration, printing the graph structure)
+# print(json.dumps(graph, indent=4))
+# # Step 7: Save Graph as JSON
+# graph_json = json.dumps(graph)
+# with open('graph.json', 'w') as json_file:
+#     json_file.write(graph_json)
+
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+import random
+
+# Step 1: Load the JSON file
+with open('Final Project/graph.json', 'r') as file:
+    data = json.load(file)
+
+# Step 2: Create a graph
+G = nx.Graph()
+for node, neighbors in data.items():
+    for neighbor in neighbors:
+        G.add_edge(node, neighbor)
+        print(node, neighbor)
+# Convert graph nodes to a list for sampling
+nx.write_gml(G, 'output.gml')
+all_nodes = list(G.nodes())
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import random
+
+# Assuming 'G' is your graph and 'all_nodes' is a list of all node identifiers in the graph
+
+# Step 1: Separate nodes
+alphabetic_nodes = [node for node in all_nodes if node.isalpha()]
+other_nodes = [node for node in all_nodes if not node.isalpha()]
+print(len(alphabetic_nodes))
+# Step 2: Define sample sizes
+sample_size_alphabetic = 33 # Adjust this value as needed
+sample_size_other = 1000  # Adjust this value as needed
+
+# Ensure the sample sizes are not larger than the number of nodes in each list
+sample_size_alphabetic = min(sample_size_alphabetic, len(alphabetic_nodes))
+sample_size_other = min(sample_size_other, len(other_nodes))
+
+# Step 3: Sample nodes
+sampled_alphabetic_nodes = random.sample(alphabetic_nodes, sample_size_alphabetic)
+sampled_other_nodes = random.sample(other_nodes, sample_size_other)
+
+# Step 4: Combine samples
+sampled_nodes = sampled_alphabetic_nodes + sampled_other_nodes
+
+# Step 5: Create a subgraph with the sampled nodes
+subgraph = G.subgraph(sampled_nodes)
+
+# # Plot the subgraph
+# plt.figure(figsize=(10, 10))  # Adjust the figure size as needed
+
+# Draw alphabetic nodes with labels and different colors
+pos = nx.spring_layout(subgraph, k=10000, iterations=10)  # Increase the value of k and iterations for more separation
+nx.draw_networkx_nodes(subgraph, pos, nodelist=sampled_alphabetic_nodes, node_color='r', node_size=50, label='Alphabetic Nodes')
+nx.draw_networkx_labels(subgraph, pos, font_size=8, font_color='black', labels={node: node for node in sampled_alphabetic_nodes})
+
+# Draw other nodes without labels
+nx.draw_networkx_nodes(subgraph, pos, nodelist=sampled_other_nodes, node_color='b', node_size=0)
+
+# Draw edges
+nx.draw_networkx_edges(subgraph, pos, edge_color='gray', width=0.2)
+
+plt.title("Sampled Subgraph of Alphabetic and Other Nodes")
+plt.legend()
+plt.show()
+
+# Step 6: Calculate the distribution of edges for each alphabetic node
+alphabetic_node_edges = {}
+for node in sampled_alphabetic_nodes:
+    alphabetic_node_edges[node] = G.degree[node]
+
+# Step 7: Plot the distribution of edges for each alphabetic node
+plt.figure(figsize=(10, 6))
+plt.bar(alphabetic_node_edges.keys(), alphabetic_node_edges.values())
+plt.xlabel('Alphabetic Nodes')
+plt.ylabel('Number of Edges')
+plt.title('Distribution of Edges for Alphabetic Nodes')
+plt.xticks(rotation=90)
+plt.show()

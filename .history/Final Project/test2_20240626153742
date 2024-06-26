@@ -1,0 +1,37 @@
+import networkx as nx
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+def load_graph(path):
+    # Load the graph from the dataset
+    return nx.read_edgelist(path, delimiter=',')
+
+def select_initial_nodes(graph, num_gossipers, num_malicious):
+    # Randomly select initial gossipers and malicious nodes
+    return gossipers, malicious_nodes
+
+def spread_information(graph, gossipers, malicious_nodes, threshold):
+    # Spread information through the network, handling malicious nodes
+    return received_info, tampered_info
+
+def compute_similarity(received_info):
+    # Compute cosine similarity between sentences
+    return similarity_matrix
+
+def visualize_diffusion(graph, received_info, tampered_info):
+    # Visualize the diffusion of information
+    pass
+
+def main():
+    graph = load_graph('Final Project/soc-gemsec-HR.edges')
+    gossipers, malicious_nodes = select_initial_nodes(graph, num_gossipers=10, num_malicious=5)
+    received_info, tampered_info = spread_information(graph, gossipers, malicious_nodes, threshold=0.5)
+    similarity_matrix = compute_similarity(received_info)
+    visualize_diffusion(graph, received_info, tampered_info)
+    # Additional analysis and visualization as needed
+
+if __name__ == "__main__":
+
+    main()

@@ -1,0 +1,11 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Load the dataset
+graph = nx.read_edgelist('Final Projectsoc-gemsec-HR.edges', delimiter=',')
+
+# Print the number of nodes
+print("Number of nodes:", graph.number_of_nodes())
+
+# Print the number of edges
+print("Number of edges:", graph.number_of_edges())

@@ -64,10 +64,10 @@ import random
 # Step 1: Separate nodes
 alphabetic_nodes = [node for node in all_nodes if node.isalpha()]
 other_nodes = [node for node in all_nodes if not node.isalpha()]
-
+print(len(alphabetic_nodes))
 # Step 2: Define sample sizes
-sample_size_alphabetic = 50 # Adjust this value as needed
-sample_size_other = 5000  # Adjust this value as needed
+sample_size_alphabetic = 33 # Adjust this value as needed
+sample_size_other = 3000  # Adjust this value as needed
 
 # Ensure the sample sizes are not larger than the number of nodes in each list
 sample_size_alphabetic = min(sample_size_alphabetic, len(alphabetic_nodes))
@@ -83,8 +83,36 @@ sampled_nodes = sampled_alphabetic_nodes + sampled_other_nodes
 # Step 5: Create a subgraph with the sampled nodes
 subgraph = G.subgraph(sampled_nodes)
 
-# Plot the subgraph
-plt.figure(figsize=(10, 10))  # Adjust the figure size as needed
-nx.draw(subgraph, with_labels=True, node_size=50, edge_color="gray", linewidths=0.5)
+# # Plot the subgraph
+# plt.figure(figsize=(10, 10))  # Adjust the figure size as needed
+
+# Draw alphabetic nodes with labels and different colors
+pos = nx.spring_layout(subgraph, k=10000, iterations=10)  # Increase the value of k and iterations for more separation
+nx.draw_networkx_nodes(subgraph, pos, nodelist=sampled_alphabetic_nodes, node_color='r', node_size=50, label='Alphabetic Nodes')
+nx.draw_networkx_labels(subgraph, pos, font_size=8, font_color='black', labels={node: node for node in sampled_alphabetic_nodes})
+
+# Draw other nodes without labels
+nx.draw_networkx_nodes(subgraph, pos, nodelist=sampled_other_nodes, node_color='b', node_size=5)
+
+# Draw edges
+nx.draw_networkx_edges(subgraph, pos, edge_color='gray', width=0.1)
+
 plt.title("Sampled Subgraph of Alphabetic and Other Nodes")
+plt.legend()
 plt.show()
+
+# Step 6: Calculate the distribution of edges for each alphabetic node
+alphabetic_node_edges = {}
+for node in sampled_alphabetic_nodes:
+    alphabetic_node_edges[node] = G.degree[node]
+sorted_alphabetic_node_edges = dict(sorted(alphabetic_node_edges.items(), key=lambda x: x[1], reverse=True))
+
+# Step 7: Plot the distribution of edges for each alphabetic node
+plt.figure(figsize=(10, 6))
+plt.bar(sorted_alphabetic_node_edges.keys(), sorted_alphabetic_node_edges.values())
+plt.xlabel('Alphabetic Nodes')
+plt.ylabel('Number of Edges')
+plt.title('Distribution of Edges for Alphabetic Nodes')
+plt.xticks(rotation=90)
+plt.show()
+

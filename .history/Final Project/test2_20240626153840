@@ -1,0 +1,58 @@
+import networkx as nx
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+def load_graph(path):
+    # Load the graph from the dataset
+    return nx.read_edgelist(path, delimiter=',')
+
+def select_initial_nodes(graph, num_gossipers, num_malicious):
+    # Randomly select initial gossipers and malicious nodes
+    num_nodes = len(graph.nodes)
+    all_nodes = list(graph.nodes)
+    gossipers = np.random.choice(all_nodes, size=num_gossipers, replace=False)
+    malicious_nodes = np.random.choice(list(set(all_nodes) - set(gossipers)), size=num_malicious, replace=False)
+    
+    return gossipers, malicious_nodes
+
+def spread_information(graph, gossipers, malicious_nodes, threshold):
+    # Spread information through the network, handling malicious nodes
+    received_info = {}
+    tampered_info = {}
+    for node in graph.nodes:
+        if node in gossipers:
+            received_info[node] = "Original information"
+        elif node in malicious_nodes:
+            received_info[node] = "Tampered information"
+            tampered_info[node] = True
+        else:
+            neighbors = list(graph.neighbors(node))
+            received_info[node] = received_info[neighbors[0]]
+            for neighbor in neighbors[1:]:
+                similarity = compute_similarity([received_info[node], received_info[neighbor]])
+                if similarity > threshold:
+                    received_info[node] = received_info[neighbor]
+    return received_info, tampered_info
+    
+
+def compute_similarity(received_info):
+    # Compute cosine similarity between sentences
+    return similarity_matrix
+
+def visualize_diffusion(graph, received_info, tampered_info):
+    # Visualize the diffusion of information
+    pass
+
+def main():
+    graph = load_graph('Final Project/soc-gemsec-HR.edges')
+    gossipers, malicious_nodes = select_initial_nodes(graph, num_gossipers=10, num_malicious=5)
+    received_info, tampered_info = spread_information(graph, gossipers, malicious_nodes, threshold=0.5)
+    similarity_matrix = compute_similarity(received_info)
+    visualize_diffusion(graph, received_info, tampered_info)
+    # Additional analysis and visualization as needed
+
+if __name__ == "__main__":
+
+    main()
