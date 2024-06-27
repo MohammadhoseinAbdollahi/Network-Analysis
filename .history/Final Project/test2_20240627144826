@@ -10,7 +10,7 @@ import imageio
 graph = nx.read_edgelist('Final Project/soc-gemsec-HR.edges',delimiter=',')
 print(nx.number_of_nodes(graph))
 # Extract a smaller subgraph by random sampling
-num_nodes_in_subgraph = 2000
+num_nodes_in_subgraph = 1000
 subgraph_nodes = list(graph.nodes())[:num_nodes_in_subgraph]
 G_sub = graph.subgraph(subgraph_nodes).copy()
 
@@ -31,8 +31,8 @@ pos = nx.spring_layout(subgraph)
 
 
 # Set parameters
-num_gossipers = 20
-num_malicious = 50
+num_gossipers = 2
+num_malicious = 5
 threshold = 0.2
 
 # Initialize gossipers and malicious nodes

@@ -32,7 +32,7 @@ pos = nx.spring_layout(subgraph)
 
 # Set parameters
 num_gossipers = 20
-num_malicious = 50
+num_malicious = 55
 threshold = 0.2
 
 # Initialize gossipers and malicious nodes
