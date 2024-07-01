@@ -1,0 +1,73 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Load the dataset
+graph = nx.read_edgelist('Final Project/email-dnc.edges', delimiter=',')
+
+# Print the number of nodes
+print("Number of nodes:", graph.number_of_nodes())
+
+# Print the number of edges
+print("Number of edges:", graph.number_of_edges())
+
+# Compute the degree distribution
+degree_sequence = [d for n, d in graph.degree()]
+degree_count = {}
+for degree in degree_sequence:
+    if degree in degree_count:
+        degree_count[degree] += 1
+    else:
+        degree_count[degree] = 1
+
+degrees = list(degree_count.keys())
+counts = list(degree_count.values())
+
+# Plot the degree distribution
+plt.figure(figsize=(12, 6))
+plt.bar(degrees, counts, color='b')
+plt.xlabel('Degree')
+plt.ylabel('Frequency')
+plt.title('Degree Distribution')
+plt.xticks(range(0, max(degrees) + 10, 10))
+plt.xlim(0, max(degrees))
+plt.grid(True)
+plt.show()
+
+
+
+# Compute betweenness centrality
+betweenness_centrality = nx.betweenness_centrality(graph)
+
+# Compute closeness centrality
+closeness_centrality = nx.closeness_centrality(graph)
+
+# Plot the distribution of betweenness centrality
+plt.figure(figsize=(12, 6))
+plt.hist(betweenness_centrality.values(), bins=50, color='b', edgecolor='k')
+plt.xlabel('Betweenness Centrality')
+plt.ylabel('Frequency')
+plt.title('Betweenness Centrality Distribution')
+plt.grid(True)
+plt.show()
+
+# Plot the distribution of closeness centrality
+plt.figure(figsize=(12, 6))
+plt.hist(closeness_centrality.values(), bins=50, color='b', edgecolor='k')
+plt.xlabel('Closeness Centrality')
+plt.ylabel('Frequency')
+plt.title('Closeness Centrality Distribution')
+plt.grid(True)
+plt.show()
+
+# Plot the subgraph and highlight the giant component
+plt.figure(figsize=(12, 6))
+
+# Subgraph in light grey
+pos = nx.spring_layout(graph)
+nx.draw(graph, pos, node_color='lightgrey', edge_color='lightgrey', with_labels=False, node_size=20)
+
+# Giant component in red
+nx.draw(graph, pos, node_color='red', edge_color='red', with_labels=False, node_size=20)
+
+plt.title(f"Subgraph with {num_nodes_in_subgraph} Nodes\nGiant Component in Red")
+plt.show()

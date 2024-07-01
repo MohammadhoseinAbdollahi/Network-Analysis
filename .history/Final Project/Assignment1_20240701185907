@@ -1,0 +1,79 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+graph = nx.read_edgelist('Final Project/email-dnc.edges', delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
+
+# Print the number of nodes
+print("Number of nodes:", graph.number_of_nodes())
+
+# Print the number of edges
+print("Number of edges:", graph.number_of_edges())
+
+import matplotlib.pyplot as plt
+
+# Compute in-degree distribution
+in_degree_sequence = sorted([d for n, d in graph.in_degree()], reverse=True)
+in_degree_count = {}
+for degree in in_degree_sequence:
+    if degree in in_degree_count:
+        in_degree_count[degree] += 1
+    else:
+        in_degree_count[degree] = 1
+
+in_degrees = list(in_degree_count.keys())
+in_counts = list(in_degree_count.values())
+
+# Compute out-degree distribution
+out_degree_sequence = sorted([d for n, d in graph.out_degree()], reverse=True)
+out_degree_count = {}
+for degree in out_degree_sequence:
+    if degree in out_degree_count:
+        out_degree_count[degree] += 1
+    else:
+        out_degree_count[degree] = 1
+
+out_degrees = list(out_degree_count.keys())
+out_counts = list(out_degree_count.values())
+
+# Plot in-degree distribution
+plt.figure(figsize=(12, 6))
+plt.bar(in_degrees, in_counts, color='r', alpha=0.5, label='In-Degree')
+plt.bar(out_degrees, out_counts, color='b', alpha=0.5, label='Out-Degree')
+plt.xlabel('Degree')
+plt.ylabel('Frequency')
+plt.title('Degree Distribution')
+plt.legend()
+plt.show()
+
+
+
+# Compute betweenness centrality
+betweenness_centrality = nx.betweenness_centrality(graph)
+
+# Compute closeness centrality
+closeness_centrality = nx.closeness_centrality(graph)
+
+# Plot the distribution of betweenness centrality
+plt.figure(figsize=(12, 6))
+plt.hist(betweenness_centrality.values(), bins=50, color='b', edgecolor='k')
+plt.xlabel('Betweenness Centrality')
+plt.ylabel('Frequency')
+plt.title('Betweenness Centrality Distribution')
+plt.grid(True)
+plt.show()
+
+# Plot the distribution of closeness centrality
+plt.figure(figsize=(12, 6))
+plt.hist(closeness_centrality.values(), bins=50, color='b', edgecolor='k')
+plt.xlabel('Closeness Centrality')
+plt.ylabel('Frequency')
+plt.title('Closeness Centrality Distribution')
+plt.grid(True)
+plt.show()
+
+# plot the graph
+plt.figure(figsize=(12, 12))
+pos = nx.spring_layout(graph)
+nx.draw(graph, pos, node_size=10, width=0.1)
+plt.show()
