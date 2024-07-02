@@ -1,0 +1,96 @@
+import networkx as nx
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+import seaborn as sns
+import imageio
+
+# Load the dataset with an additional timestamp attribute
+graph = nx.read_edgelist('Final Project/email-dnc.edges', delimiter=",",data=(('timestamp', float),))
+print(nx.number_of_nodes(graph))
+
+
+
+
+# Set parameters
+num_gossipers = 20
+num_malicious = 50
+threshold = 0.2
+
+# Initialize gossipers and malicious nodes
+gossipers = random.sample(list(subgraph.nodes), num_gossipers)
+malicious = random.sample([node for node in subgraph.nodes if node not in gossipers], num_malicious)
+
+# Initialize information in the nodes
+info_dict = {node: None for node in subgraph.nodes}
+for g in gossipers:
+    info_dict[g] = "super secret sentence"
+for m in malicious:
+    info_dict[m] = "super secret sentence"
+
+# Function to spread information and capture the process step-by-step
+def spread_information(graph, info_dict, gossipers, malicious, threshold):
+    frames = []
+    pos = nx.spring_layout(graph)
+
+    def draw_frame(info_dict, step):
+        colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in graph.nodes]
+        node_colors = [colors[i] if info_dict[node] is None else 'yellow' if info_dict[node] == 'tampered info' else 'cyan' for i, node in enumerate(graph.nodes)]
+        plt.figure(figsize=(8, 6))
+        nx.draw(graph, pos, node_color=node_colors, with_labels=False, node_size=100)
+        plt.title(f'Step {step}')
+        plt.savefig(f'Final Project/Frames/step_{step}.png')
+        plt.close()
+        frames.append(imageio.imread(f'Final Project/Frames/step_{step}.png'))
+
+    draw_frame(info_dict, 0)
+    new_info_dict = info_dict.copy()
+    step = 1
+    while True:
+        changes = False
+        for node in graph.nodes:
+            if info_dict[node] is None:
+                neighbors = list(graph.neighbors(node))
+                received_info = [info_dict[neighbor] for neighbor in neighbors if info_dict[neighbor] is not None]
+                if len(received_info) / len(neighbors) >= threshold:
+                    if node in malicious:
+                        new_info_dict[node] = "tampered info"
+                    else:
+                        new_info_dict[node] = received_info[0]
+                    changes = True
+        if not changes:
+            break
+        info_dict = new_info_dict.copy()
+        draw_frame(info_dict, step)
+        step += 1
+    return info_dict, frames
+
+# Spread the information and capture frames
+final_info_dict, frames = spread_information(subgraph, info_dict, gossipers, malicious, threshold)
+
+# Save frames as a GIF
+imageio.mimsave('Final Project/Frames/information_spread.gif', frames, duration=1)
+
+# Analyze the results
+info_list = list(final_info_dict.values())
+unique_infos = list(set(info_list))
+info_vectors = np.zeros((len(info_list), len(unique_infos)))
+
+for i, info in enumerate(info_list):
+    if info is not None:
+        info_vectors[i, unique_infos.index(info)] = 1
+
+cos_sim = cosine_similarity(info_vectors)
+
+# Plot the cosine similarity as a heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(cos_sim, xticklabels=False, yticklabels=False, cmap='viridis')
+plt.title('Cosine Similarity of Information Spread')
+plt.show()
+
+# Visualize the graph
+pos = nx.spring_layout(subgraph)
+colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in subgraph.nodes]
+nx.draw(subgraph, pos, node_color=colors, with_labels=False, node_size=50)
+plt.show()

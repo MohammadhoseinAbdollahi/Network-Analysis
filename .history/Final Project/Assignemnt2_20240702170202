@@ -57,7 +57,7 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-
+exit()
 # Initialize information in the nodes
 info_dict = {node: None for node in graph.nodes}
 for g in gossipers:

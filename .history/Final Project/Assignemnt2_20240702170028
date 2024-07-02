@@ -33,10 +33,10 @@ gossipers = random.sample(list(graph.nodes), num_gossipers)
 malicious = random.sample([node for node in graph.nodes if node not in gossipers], num_malicious)
 
 # Compare the in and out degree of the malicious nodes and the gossipers with plots
-malicious_in_degrees = [graph.in_degree(node) for node in malicious]
-malicious_out_degrees = [graph.out_degree(node) for node in malicious]
-gossipers_in_degrees = [graph.in_degree(node) for node in gossipers]
-gossipers_out_degrees = [graph.out_degree(node) for node in gossipers]
+malicious_in_degrees = sorted([graph.in_degree(node) for node in malicious])
+malicious_out_degrees = sorted([graph.out_degree(node) for node in malicious])
+gossipers_in_degrees = sorted([graph.in_degree(node) for node in gossipers])
+gossipers_out_degrees = sorted([graph.out_degree(node) for node in gossipers])
 
 # Plot the in-degrees
 plt.figure(figsize=(12, 6))
@@ -57,7 +57,7 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-
+exit()
 # Initialize information in the nodes
 info_dict = {node: None for node in graph.nodes}
 for g in gossipers:

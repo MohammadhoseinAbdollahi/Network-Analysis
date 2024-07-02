@@ -32,31 +32,7 @@ threshold = 0.2
 gossipers = random.sample(list(graph.nodes), num_gossipers)
 malicious = random.sample([node for node in graph.nodes if node not in gossipers], num_malicious)
 
-# Compare the in and out degree of the malicious nodes and the gossipers with plots
-malicious_in_degrees = [graph.in_degree(node) for node in malicious]
-malicious_out_degrees = [graph.out_degree(node) for node in malicious]
-gossipers_in_degrees = [graph.in_degree(node) for node in gossipers]
-gossipers_out_degrees = [graph.out_degree(node) for node in gossipers]
-
-# Plot the in-degrees
-plt.figure(figsize=(12, 6))
-plt.bar(range(len(malicious_in_degrees)), malicious_in_degrees, color='r', alpha=0.7, label='Malicious')
-plt.bar(range(len(gossipers_in_degrees)), gossipers_in_degrees, color='g', alpha=0.7, label='Gossipers')
-plt.ylabel('In-Degree')
-plt.title('In-Degree Distribution of Malicious Nodes and Gossipers')
-plt.legend()
-plt.grid(True)
-plt.show()
-# Plot the out-degrees
-plt.figure(figsize=(12, 6))
-plt.bar(range(len(malicious_out_degrees)), malicious_out_degrees, color='r', alpha=0.7, label='Malicious')
-plt.bar(range(len(gossipers_out_degrees)), gossipers_out_degrees, color='g', alpha=0.7, label='Gossipers')
-plt.ylabel('Out-Degree')
-plt.title('Out-Degree Distribution of Malicious Nodes and Gossipers')
-plt.legend()
-plt.grid(True)
-plt.show()
-
+# compare the in and out degree of the nodes
 
 # Initialize information in the nodes
 info_dict = {node: None for node in graph.nodes}
