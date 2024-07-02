@@ -1,9 +1,8 @@
 import networkx as nx
-from infomap import Infomap
 import matplotlib.pyplot as plt
-file_path = 'Final Project/email-dnc.edges'
+
 # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-graph = nx.read_edgelist(file_path, delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
+graph = nx.read_edgelist('Final Project/email-dnc.edges', delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
 
 # Print the number of nodes
 print("Number of nodes:", graph.number_of_nodes())
@@ -11,11 +10,11 @@ print("Number of nodes:", graph.number_of_nodes())
 # Print the number of edges
 print("Number of edges:", graph.number_of_edges())
 
-# plot the graph
-plt.figure(figsize=(12, 12))
-pos = nx.spring_layout(graph)
-nx.draw(graph, pos, node_size=10, width=0.1)
-plt.show()
+# # plot the graph
+# plt.figure(figsize=(12, 12))
+# pos = nx.spring_layout(graph)
+# nx.draw(graph, pos, node_size=10, width=0.1)
+# plt.show()
 
 # Compute the average degree
 average_degree = sum(dict(graph.degree()).values()) / graph.number_of_nodes()
@@ -108,50 +107,21 @@ plt.title('Closeness Centrality Distribution')
 plt.grid(True)
 plt.show()
 
-
-
-# Function to read an edge list file and strip the BOM if present
-def read_edge_list_with_bom(file_path):
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
-        edges = f.readlines()
-    return edges
-
-# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-edges = read_edge_list_with_bom(file_path)
-G = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+from infomap import Infomap
 
 # Initialize Infomap
 infomap = Infomap()
-
-# Add edges to Infomap (ignoring the edge data for Infomap)
-for u, v, _ in G.edges(data=True):
-    infomap.add_link(int(u), int(v))
-
+# Add edges to Infomap
+for u, v in graph.edges():
+    infomap.add_link(u, v)
 # Run the Infomap algorithm
 infomap.run()
-
 # Get the communities
 communities = infomap.get_modules()
-
+import matplotlib.pyplot as plt
 # Assign colors to nodes based on communities
 unique_communities = set(communities.values())
-color_map = plt.colormaps['tab20']
-colors = [color_map(i) for i in range(len(unique_communities))]
-community_colors = {community: colors[i] for i, community in enumerate(unique_communities)}
+color_map = plt.cm.get_cmap('tab20', len(unique_communities))
+community_colors = {community: color_map(i) for i, community in enumerate(unique_communities)}
 node_colors = [community_colors[communities[node]] for node in G.nodes()]
-
-# Visualize the graph
-plt.figure(figsize=(12, 12))
-pos = nx.spring_layout(G)  # Layout for positioning nodes
-
-nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=50, alpha=0.8)
-nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color='gray', alpha=0.5, arrows=True)
-plt.title("Community Structure in Directed Graph")
-plt.savefig('community_structure.png')
-plt.show()
-
-
-
-
-
 

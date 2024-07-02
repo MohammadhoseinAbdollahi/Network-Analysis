@@ -1,9 +1,8 @@
 import networkx as nx
-from infomap import Infomap
 import matplotlib.pyplot as plt
-file_path = 'Final Project/email-dnc.edges'
+
 # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-graph = nx.read_edgelist(file_path, delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
+graph = nx.read_edgelist('Final Project/email-dnc.edges', delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
 
 # Print the number of nodes
 print("Number of nodes:", graph.number_of_nodes())
@@ -51,7 +50,6 @@ plt.bar(in_degrees, in_counts, color='r', alpha=0.5, label='In-Degree')
 plt.bar(out_degrees, out_counts, color='b', alpha=0.5, label='Out-Degree')
 plt.xlabel('Degree')
 plt.ylabel('Frequency')
-plt.xlim(0, 100)
 plt.title('Degree Distribution')
 plt.legend()
 plt.show()
@@ -75,7 +73,6 @@ plt.figure(figsize=(12, 6))
 plt.bar(shortest_path_lengths_count.keys(), shortest_path_lengths_count.values(), color='b', alpha=0.5)
 plt.xlabel('Shortest Path Length')
 plt.ylabel('Frequency')
-plt.xlim(0, 10)
 plt.title('Shortest Path Length Distribution')
 plt.show()
 
@@ -108,50 +105,26 @@ plt.title('Closeness Centrality Distribution')
 plt.grid(True)
 plt.show()
 
+# Compute the clustering coefficient
+clustering_coefficient = nx.average_clustering(graph)
+print("Clustering coefficient:", clustering_coefficient)
 
+# Semi-synchronous label propagation method for community detection
+communities = nx.algorithms.community.label_propagation_communities(graph)
 
-# Function to read an edge list file and strip the BOM if present
-def read_edge_list_with_bom(file_path):
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
-        edges = f.readlines()
-    return edges
+# Determine the number of communities
+num_communities = len(communities)
+print("Number of communities:", num_communities)
 
-# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-edges = read_edge_list_with_bom(file_path)
-G = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
-
-# Initialize Infomap
-infomap = Infomap()
-
-# Add edges to Infomap (ignoring the edge data for Infomap)
-for u, v, _ in G.edges(data=True):
-    infomap.add_link(int(u), int(v))
-
-# Run the Infomap algorithm
-infomap.run()
-
-# Get the communities
-communities = infomap.get_modules()
-
-# Assign colors to nodes based on communities
-unique_communities = set(communities.values())
-color_map = plt.colormaps['tab20']
-colors = [color_map(i) for i in range(len(unique_communities))]
-community_colors = {community: colors[i] for i, community in enumerate(unique_communities)}
-node_colors = [community_colors[communities[node]] for node in G.nodes()]
-
-# Visualize the graph
+# Create a colors list to assign the same color to nodes in the same community
+colors = []
+for node in graph.nodes():
+    for i, community in enumerate(communities):
+        if node in community:
+            colors.append(i)
+            break
+# Plot the graph with nodes colored by community
 plt.figure(figsize=(12, 12))
-pos = nx.spring_layout(G)  # Layout for positioning nodes
-
-nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=50, alpha=0.8)
-nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color='gray', alpha=0.5, arrows=True)
-plt.title("Community Structure in Directed Graph")
-plt.savefig('community_structure.png')
+nx.draw(graph, pos, node_size=10, width=0.1, node_color=colors, cmap=plt.cm.tab20)
 plt.show()
-
-
-
-
-
 

@@ -11,11 +11,11 @@ print("Number of nodes:", graph.number_of_nodes())
 # Print the number of edges
 print("Number of edges:", graph.number_of_edges())
 
-# plot the graph
-plt.figure(figsize=(12, 12))
-pos = nx.spring_layout(graph)
-nx.draw(graph, pos, node_size=10, width=0.1)
-plt.show()
+# # plot the graph
+# plt.figure(figsize=(12, 12))
+# pos = nx.spring_layout(graph)
+# nx.draw(graph, pos, node_size=10, width=0.1)
+# plt.show()
 
 # Compute the average degree
 average_degree = sum(dict(graph.degree()).values()) / graph.number_of_nodes()
