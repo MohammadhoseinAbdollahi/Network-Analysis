@@ -123,8 +123,5 @@ for node in graph.nodes():
         if node in community:
             colors.append(i)
             break
-# Plot the graph with nodes colored by community
-plt.figure(figsize=(12, 12))
-nx.draw(graph, pos, node_size=10, width=0.1, node_color=colors, cmap=plt.cm.tab20)
-plt.show()
+
 
