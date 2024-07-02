@@ -1,0 +1,77 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+file_path = 'Final Project/email-dnc.edges'
+# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+def read_edge_list_with_bom(file_path):
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        edges = f.readlines()
+    return edges
+
+edges = read_edge_list_with_bom(file_path)
+graph = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+
+
+# Part 1: Investigating Network Robustness with Small Graphs
+
+# Function to compute the size of the giant component
+def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    largest_cc = max(nx.connected_components(G.to_undirected()), key=len)
+    return len(largest_cc)
+
+# Function to simulate attacks on the network
+def simulate_attacks(graph, nodes_to_remove):
+    sizes = []
+    G = graph.copy()
+    initial_size = compute_giant_component_size(G)
+    sizes.append(initial_size / initial_size)  # Normalized size of the giant component
+    for node in nodes_to_remove:
+        G.remove_node(node)
+        giant_component_size = compute_giant_component_size(G)
+        sizes.append(giant_component_size / initial_size)
+    return sizes
+
+
+
+plt.figure(figsize=(14, 7))
+
+
+# Random failures
+random_nodes = np.random.permutation(graph.nodes)
+sizes_random_failures = simulate_attacks(graph, random_nodes)
+    
+# Targeted attacks: Highest degree nodes
+degree_sorted_nodes = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+degree_sorted_nodes = [node for node, _ in degree_sorted_nodes]
+sizes_targeted_attacks_degree = simulate_attacks(graph, degree_sorted_nodes)
+    
+# Targeted attacks: Highest betweenness nodes
+betweenness_sorted_nodes = sorted(nx.betweenness_centrality(graph).items(), key=lambda x: x[1], reverse=True)
+betweenness_sorted_nodes = [node for node, _ in betweenness_sorted_nodes]
+sizes_targeted_attacks_betweenness = simulate_attacks(graph, betweenness_sorted_nodes)
+    
+    # Targeted attacks: Highest pagerank nodes
+pagerank_sorted_nodes = sorted(nx.pagerank(graph).items(), key=lambda x: x[1], reverse=True)
+    pagerank_sorted_nodes = [node for node, _ in pagerank_sorted_nodes]
+    sizes_targeted_attacks_pagerank = simulate_attacks(graph, pagerank_sorted_nodes)
+    
+    # Plot results
+    plt.subplot(1, 2, i+1)
+    plt.plot(sizes_random_failures, label='Random Failures')
+    plt.plot(sizes_targeted_attacks_degree, label='Targeted Attacks (Degree)')
+    plt.plot(sizes_targeted_attacks_betweenness, label='Targeted Attacks (Betweenness)')
+    plt.plot(sizes_targeted_attacks_pagerank, label='Targeted Attacks (Pagerank)')
+    plt.xlabel('Number of Nodes Removed')
+    plt.ylabel('Size of Giant Component (Normalized)')
+    plt.title(f'Network Robustness: {graph_names[i]}')
+    plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# Note: For Part 2, replace the small graphs (G1, G2) with the large graph from the other assignments.
+# For Part 3, after identifying the most damaging attack strategy, propose and implement a strategy to improve network robustness.
+# Then, compute the critical threshold before and after the improvement to evaluate the effectiveness of your strategy.
