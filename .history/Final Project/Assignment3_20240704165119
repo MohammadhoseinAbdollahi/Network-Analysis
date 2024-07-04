@@ -1,0 +1,182 @@
+import imageio.v2 as imageio
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.sparse.linalg
+
+def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    # Use strongly connected components for directed graphs
+    largest_scc = max(nx.strongly_connected_components(G), key=len)
+    return len(largest_scc)
+
+# def simulate_attacks(graph, nodes_to_remove):
+#     sizes = []
+#     G = graph.copy()
+#     initial_size = compute_giant_component_size(G)
+#     sizes.append(initial_size / initial_size)  # Normalized size of the giant component
+#     for node in nodes_to_remove:
+#         G.remove_node(node)
+#         giant_component_size = compute_giant_component_size(G)
+#         sizes.append(giant_component_size / initial_size)
+#     return sizes
+
+def simulate_attacks_random(graph):
+    sizes = []
+    G_copy = graph.copy()
+    initial_size = compute_giant_component_size(G_copy)
+    random_nodes = np.random.permutation(G_copy.nodes)
+    num_nodes = int(len(random_nodes) * 0.2)
+    random_nodes = random_nodes[:num_nodes]
+    sizes.append((initial_size, G_copy.number_of_nodes()))
+    for node in random_nodes:
+        G_copy.remove_node(node)
+        giant_component_size = compute_giant_component_size(G_copy)
+        sizes.append((giant_component_size, G_copy.number_of_nodes()))
+    return sizes
+def simulate_attacks_HighDegree(graph):
+    sizes = []
+    G_copy = graph.copy()
+    initial_size = compute_giant_component_size(G_copy)
+    degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
+    degree_sorted_nodes = [node for node, _ in degree_sorted_nodes]
+    num_nodes = int(len(degree_sorted_nodes) * 0.2)
+    sizes.append((initial_size, G_copy.number_of_nodes()))
+    nodes_to_remove = degree_sorted_nodes[:num_nodes]
+    for node in nodes_to_remove:
+        G_copy.remove_node(node)
+        giant_component_size = compute_giant_component_size(G_copy)
+        sizes.append((giant_component_size, G_copy.number_of_nodes()))
+    return sizes
+def simulate_attacks_HighBetweenness(graph):
+    sizes = []
+    G_copy = graph.copy()
+    initial_size = compute_giant_component_size(G_copy)
+    betweenness_sorted_nodes = sorted(nx.betweenness_centrality(G_copy).items(), key=lambda x: x[1], reverse=True)
+    num_nodes = int(len(betweenness_sorted_nodes) * 0.2)
+    sizes.append((initial_size, G_copy.number_of_nodes()))
+    nodes_to_remove = betweenness_sorted_nodes[:num_nodes]
+    for node in nodes_to_remove:
+        G_copy.remove_node(node)
+        giant_component_size = compute_giant_component_size(G_copy)
+        sizes.append((giant_component_size, G_copy.number_of_nodes()))
+    return sizes
+def simulate_attacks_PageRank(graph):
+    sizes = []
+    G_copy = graph.copy()
+    initial_size = compute_giant_component_size(G_copy)
+    pagerank_sorted_nodes = sorted(nx.pagerank(G_copy).items(), key=lambda x: x[1], reverse=True)
+    num_nodes = int(len(pagerank_sorted_nodes) * 0.2)
+    sizes.append((initial_size, G_copy.number_of_nodes()))
+    nodes_to_remove = pagerank_sorted_nodes[:num_nodes]
+    for node in nodes_to_remove:
+        G_copy.remove_node(node)
+        giant_component_size = compute_giant_component_size(G_copy)
+        sizes.append((giant_component_size, G_copy.number_of_nodes()))
+    return sizes
+   
+    
+# Create a directed cycle graph with 200 nodes
+G = nx.DiGraph()
+G.add_edges_from((i, (i + 1) % 200) for i in range(200))
+
+# Add some random internal cycles for complexity
+for i in range(0, 200, 20):
+    G.add_edge(i, (i + 10) % 200)
+    G.add_edge((i + 10) % 200, i)
+# Plot the graph
+plt.figure(figsize=(12, 12))
+pos = nx.spring_layout(G)
+nx.draw(G, pos, node_size=10, width=0.1)
+plt.show()
+# Perform attacks
+attacks=("Random Failures", "Targeted Attacks (Degree)", "Targeted Attacks (Betweenness)", "Targeted Attacks (Pagerank)")
+result_random_failures = {}
+result_HighDegree = {}
+result_HighBetweenness = {}
+result_PageRank = {}
+for attack_type in attacks :
+    while G.edges > 5 :
+        if attack_type == "Random Failures":
+            sizes_random_failures = simulate_attacks_random(G)
+            result_random_failures.append(sizes_random_failures)
+        elif attack_type == "Targeted Attacks (Degree)":
+            sizes_targeted_attacks_degree = simulate_attacks_HighDegree(G)
+            result_HighDegree.append(sizes_targeted_attacks_degree)
+        elif attack_type == "Targeted Attacks (Betweenness)":
+            sizes_targeted_attacks_betweenness = simulate_attacks_HighBetweenness(G)
+            result_HighBetweenness.append(sizes_targeted_attacks_betweenness)
+        elif attack_type == "Targeted Attacks (Pagerank)":
+            sizes_targeted_attacks_pagerank = simulate_attacks_PageRank(G)
+            result_PageRank.append(sizes_targeted_attacks_pagerank)
+        G=G.subgraph(max(nx.strongly_connected_components(G), key=len))
+# Plot results
+plt.figure(figsize=(12, 12))
+plt.subplot(2, 2, 1)
+plt.plot([x[0] for x in result_random_failures], [x[1] for x in result_random_failures], label='Random Failures')
+plt.xlabel('Size of Giant Component')
+plt.ylabel('Number of Nodes Remaining')
+plt.title('Random Failures')
+plt.legend() critical paths
+
+plt.subplot(2, 2, 2)
+plt.plot([x[0] for x in result_HighDegree], [x[1] for x in result_HighDegree], label='Targeted Attacks (Degree)')
+plt.xlabel('Size of Giant Component')
+plt.ylabel('Number of Nodes Remaining')
+plt.title('Targeted Attacks (Degree)')
+plt.legend()
+
+            if neighbors1 and neighbors2:
+plt.subplot(2, 2, 3)
+plt.plot([x[0] for x in result_HighBetweenness], [x[1] for x in result_HighBetweenness], label='Targeted Attacks (Betweenness)')
+plt.xlabel('Size of Giant Component')
+plt.ylabel('Number of Nodes Remaining')
+plt.title('Targeted Attacks (Betweenness)')
+plt.legend()
+
+plt.subplot(2, 2, 4)
+plt.plot([x[0] for x in result_PageRank], [x[1] for x in result_PageRank], label='Targeted Attacks (Pagerank)')
+plt.xlabel('Size of Giant Component')
+plt.ylabel('Number of Nodes Remaining')
+plt.title('Targeted Attacks (Pagerank)')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+                graph.remove_edge(node1, neighbors1[0])  # Example: Reroute one critical path
+                graph.remove_edge(node2, neighbors2[0])
+                graph.add_edge(neighbors1[0], neighbors2[0])
+    pass
+elif most_damaging_strategy[0] == 'Targeted Attacks (Pagerank)':
+    # Implement strategy to improve robustness against PageRank-based attacks
+    for node in graph.nodes():
+        pagerank = nx.pagerank(graph)
+        if pagerank[node] > 0.05:  # Example condition to reduce influence
+            neighbors = list(graph.neighbors(node))
+            if neighbors:
+                graph.remove_edge(node, neighbors[0])  # Example: Dampen influence of high-PageRank node
+    pass
+
+# Then, compute the critical threshold before and after the improvement to evaluate the effectiveness of your strategy.
+critical_threshold_after = compute_critical_threshold(graph)
+
+print(f"Critical Threshold Before Improvement: {critical_threshold_before}")
+print(f"Critical Threshold After Improvement: {critical_threshold_after}")
+
+# Recompute the sizes after improvement for the most damaging strategy
+attack_after_improvement = simulate_attacks(graph, random_nodes)  # Ensure this uses the correct nodes based on the strategy
+
+# Now, plot the results including the improved strategy
+plt.plot(sizes_random_failures, label='Random Failures')
+plt.plot(sizes_targeted_attacks_degree, label='Targeted Attacks (Degree)')
+plt.plot(sizes_targeted_attacks_betweenness, label='Targeted Attacks (Betweenness)')
+plt.plot(sizes_targeted_attacks_pagerank, label='Targeted Attacks (Pagerank)')
+plt.plot(attack_after_improvement, label='After Improvement', linestyle='--')  # This should now reflect changes
+
+plt.xlabel('Number of Nodes Removed')
+plt.ylabel('Size of Giant Component (Normalized)')
+plt.title('Network Robustness: Random vs. Targeted Attacks and Improvement')
+plt.legend()
+plt.tight_layout()
+plt.show()
