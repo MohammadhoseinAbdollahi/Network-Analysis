@@ -1,0 +1,121 @@
+import imageio.v2 as imageio
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    if nx.is_directed(G):
+        largest_scc = max(nx.strongly_connected_components(G), key=len)
+    else:
+        largest_scc = max(nx.connected_components(G), key=len)
+    return len(largest_scc)
+
+def simulate_attacks(graph, nodes_to_remove):
+    sizes = []
+    G = graph.copy()
+    for node in nodes_to_remove:
+        G.remove_node(node)
+        giant_component_size = compute_giant_component_size(G)
+        sizes.append(giant_component_size)
+    return G, sizes
+
+def simulate_random_attacks(G, fraction=0.1):
+    nodes_to_remove = np.random.permutation(G.nodes)
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:10]
+    return simulate_attacks(G, nodes_to_remove)
+
+def simulate_high_degree_attacks(G, fraction=0.1):
+    degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in degree_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:10]
+    return simulate_attacks(G, nodes_to_remove)
+
+def simulate_high_betweenness_attacks(G, fraction=0.1):
+    betweenness_sorted_nodes = sorted(nx.betweenness_centrality(G).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in betweenness_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:10]
+    return simulate_attacks(G, nodes_to_remove)
+
+def simulate_pagerank_attacks(G, fraction=0.1):
+    pagerank_sorted_nodes = sorted(nx.pagerank(G).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in pagerank_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:10]
+    return simulate_attacks(G, nodes_to_remove)
+
+# # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+# def read_edge_list_with_bom(file_path):
+#     with open(file_path, 'r', encoding='utf-8-sig') as f:
+#         edges = f.readlines()
+#     return edges
+
+# file_path = 'Final Project/email-dnc.edges'
+# edges = read_edge_list_with_bom(file_path)
+# graph = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+# print("Number of nodes:", graph.number_of_nodes())
+# print("Number of edges:", graph.number_of_edges())
+gra
+G_original = graph.copy()
+
+# Perform attacks
+attacks = ("Random Failures", "Targeted Attacks (Degree)", "Targeted Attacks (Betweenness)", "Targeted Attacks (Pagerank)")
+
+# Results storage
+results = {
+    "Random Failures": [],
+    "Targeted Attacks (Degree)": [],
+    "Targeted Attacks (Betweenness)": [],
+    "Targeted Attacks (Pagerank)": []
+}
+nodes_fraction = {
+    "Random Failures": [],
+    "Targeted Attacks (Degree)": [],
+    "Targeted Attacks (Betweenness)": [],
+    "Targeted Attacks (Pagerank)": []
+}
+
+for attack_type in attacks:
+    G = G_original.copy()
+    number_of_nodes = G.number_of_nodes()
+    removed_nodes = 0
+    
+    while G.number_of_nodes() > 10:
+        if attack_type == "Random Failures":
+            G, sizes = simulate_random_attacks(G)
+        elif attack_type == "Targeted Attacks (Degree)":
+            G, sizes = simulate_high_degree_attacks(G)
+        elif attack_type == "Targeted Attacks (Betweenness)":
+            G, sizes = simulate_high_betweenness_attacks(G)
+        elif attack_type == "Targeted Attacks (Pagerank)":
+            G, sizes = simulate_pagerank_attacks(G)
+        
+        results[attack_type].extend(sizes)
+        removed_nodes += len(sizes)
+        nodes_fraction[attack_type].extend([(removed_nodes / number_of_nodes)] * len(sizes))
+        
+        if G.number_of_nodes() == 0:
+            break
+        
+        try:
+            if nx.is_directed(G):
+                G = G.subgraph(max(nx.strongly_connected_components(G), key=len))
+            else:
+                G = G.subgraph(max(nx.connected_components(G), key=len))
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            break
+
+# Plot results with the adjusted x-axis
+plt.figure(figsize=(10, 6))
+for attack_type in attacks:
+    plt.plot(nodes_fraction[attack_type], [size/number_of_nodes for size in results[attack_type]], label=attack_type)
+plt.xlabel('Fraction of Nodes Attacked')
+plt.ylabel('Normalized Size of the Largest Component')
+plt.legend()
+plt.title('Network Resilience Under Different Attack Strategies')
+plt.show()

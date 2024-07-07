@@ -1,0 +1,77 @@
+import imageio.v2 as imageio
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    if nx.is_directed(G):
+        largest_scc = max(nx.strongly_connected_components(G), key=len)
+    else:
+        largest_scc = max(nx.connected_components(G), key=len)
+    return len(largest_scc)
+
+def simulate_attacks(graph, nodes_to_remove):
+    sizes = []
+    G = graph.copy()
+    initial_size = compute_giant_component_size(G)
+    sizes.append(initial_size / G.number_of_nodes())  # Normalized size of the giant component
+    for node in nodes_to_remove:
+        G.remove_node(node)
+        giant_component_size = compute_giant_component_size(G)
+        sizes.append(giant_component_size / initial_size)
+    return sizes
+
+def simulate_random_attacks(G, fraction=0.5):
+    G_copy = G.copy()
+    nodes_to_remove = np.random.permutation(G_copy.nodes)
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_degree_attacks(G, fraction=0.5):
+    G_copy = G.copy()
+    degree_sorted_nodes = sorted(G_copy.degree, key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in degree_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_betweenness_attacks(G, fraction=0.5):
+    G_copy = G.copy()
+    betweenness_sorted_nodes = sorted(nx.betweenness_centrality(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in betweenness_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_pagerank_attacks(G, fraction=0.5):
+    G_copy = G.copy()
+    pagerank_sorted_nodes = sorted(nx.pagerank(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in pagerank_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+# Generate a random graph
+G = nx.erdos_renyi_graph(1000, 0.05)
+print
+
+# Perform different attack simulations
+random_failures = simulate_random_attacks(G)
+high_degree = simulate_high_degree_attacks(G)
+high_betweenness = simulate_high_betweenness_attacks(G)
+pagerank_attacks = simulate_pagerank_attacks(G)
+
+# Plot results
+plt.figure(figsize=(10, 6))
+plt.plot(np.linspace(0, 1, len(random_failures)), random_failures, label="Random Failures")
+plt.plot(np.linspace(0, 1, len(high_degree)), high_degree, label="High Degree")
+plt.plot(np.linspace(0, 1, len(high_betweenness)), high_betweenness, label="High Betweenness")
+plt.plot(np.linspace(0, 1, len(pagerank_attacks)), pagerank_attacks, label="PageRank")
+plt.xlabel('Percentage of Nodes Failed')
+plt.ylabel('Normalized Size of the Giant Component')
+plt.legend()
+plt.title('Attack Strategies Impact on Network')
+plt.show()
