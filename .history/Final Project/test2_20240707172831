@@ -1,0 +1,69 @@
+import random
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def analyze_attack(G, attack_type):
+  """
+  Analyzes the robustness of a graph under a specific attack type.
+
+  Args:
+      G: A NetworkX graph object.
+      attack_type: A string representing the attack type ("random", "highest_degree", "highest_pagerank", "highest_betweenness").
+
+  Returns:
+      A list of giant component sizes for each attack iteration.
+  """
+  giant_component_sizes = []
+  original_graph = G.copy()
+
+  while len(G.nodes()) > 0:
+    # Identify attack targets based on the chosen strategy
+    if attack_type == "random":
+      nodes_to_remove = random.sample(list(G.nodes()), 1)  # Remove 1 node at a time
+    elif attack_type == "highest_degree":
+      nodes_to_remove = [node for node, degree in sorted(G.degree(), key=lambda x: x[1], reverse=True)][0:1]  # Top 1 highest degree node
+    elif attack_type == "highest_pagerank":
+      nodes_to_remove = [max(nx.pagerank(G).items(), key=lambda item: item[1])[0]]  # Top 1 PageRank node
+    elif attack_type == "highest_betweenness":
+      nodes_to_remove = [max(nx.betweenness_centrality(G).items(), key=lambda item: item[1])[0]]  # Top 1 betweenness node
+    else:
+      raise ValueError("Invalid attack type provided.")
+
+    # Remove targeted nodes
+    G.remove_nodes_from(nodes_to_remove)
+
+    # Get the size of the giant component after the attack
+    giant_component = max(nx.connected_components(G), key=len)
+    giant_component_size = len(giant_component)
+    giant_component_sizes.append(giant_component_size)
+
+    # Update the graph for the next iteration
+    G = G.subgraph(giant_component)
+
+  # Normalize size for large networks (optional)
+  # normalized_sizes = [size / len(original_graph) for size in giant_component_sizes]
+
+  return giant_component_sizes
+
+def main():
+  # Load a sample graph (replace with your chosen graphs)
+  G1 = nx.karate_club_graph()
+  G2 = nx.erdos_renyi_graph(20, 0.3)
+
+  # Analyze each graph under different attack strategies
+  for G in [G1, G2]:
+    G_modifiable = G.copy(as_view=False)
+    G_modifiable.remove_nodes_from(nodes_to_remove)
+    for attack_type in ["random", "highest_degree", "highest_pagerank", "highest_betweenness"]:
+      giant_component_sizes = analyze_attack(G.copy(), attack_type)
+
+      # Plot the results (replace with your preferred plotting library)
+      plt.plot(range(len(giant_component_sizes)), giant_component_sizes, label=attack_type)
+      plt.xlabel("Number of Node Removals")
+      plt.ylabel("Giant Component Size")
+      plt.title(f"Network Robustness (Attack: {attack_type}) - {G.name}")
+      plt.legend()
+      plt.show()
+
+if __name__ == "__main__":
+  main()

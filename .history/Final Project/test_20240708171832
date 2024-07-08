@@ -1,0 +1,178 @@
+import imageio.v2 as imageio
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+# Generate a random graph
+file_path = 'Final Project/email-dnc.edges'
+# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+def read_edge_list_with_bom(file_path):
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        edges = f.readlines()
+    return edges
+
+edges = read_edge_list_with_bom(file_path)
+graph_org = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+print("Number of nodes:", graph_org.number_of_nodes())
+print("Number of edges:", graph_org.number_of_edges())
+
+# Generate a random graph
+graph_org = nx.barabasi_albert_graph(1000, 10)
+print("Number of nodes:", graph_org.number_of_nodes())
+print("Number of edges:", graph_org.number_of_edges())
+
+def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    if nx.is_directed(G):
+        largest_scc = max(nx.strongly_connected_components(G), key=len)
+    else:
+        largest_scc = max(nx.connected_components(G), key=len)
+    return len(largest_scc)
+
+def compute_zero_degree_nodes(G):
+    zero_degree_nodes = [node for node, degree in G.degree if degree == 0]
+    return len(zero_degree_nodes) 
+
+def simulate_attacks(graph, nodes_to_remove):
+    sizes = []
+    G = graph.copy()
+    initial_size = compute_giant_component_size(graph)  
+    giant_component_size = compute_giant_component_size(G)
+    sizes.append(giant_component_size/compute_giant_component_size(graph_org))
+    for node in nodes_to_remove:
+        G.remove_node(node)
+    return G,sizes
+
+def simulate_attacks_on_main_graph(graph, nodes_to_remove):
+    for node in nodes_to_remove:
+        graph.remove_node(node)
+    return 
+
+def simulate_random_attacks(G, fraction=0.05):
+    G_copy = G.copy()
+    nodes_to_remove = np.random.permutation(G_copy.nodes)
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    print(nodes_to_remove)
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_degree_attacks(G, fraction=0.05):
+    G_copy = G.copy()
+    degree_sorted_nodes = sorted(G_copy.degree, key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in degree_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    print(nodes_to_remove)
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_betweenness_attacks(G, fraction=0.05):
+    G_copy = G.copy()
+    betweenness_sorted_nodes = sorted(nx.betweenness_centrality(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in betweenness_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    print(nodes_to_remove)
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_pagerank_attacks(G, fraction=0.05):
+    G_copy = G.copy()
+    pagerank_sorted_nodes = sorted(nx.pagerank(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in pagerank_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+# Generate a random graph
+graph = nx.barabasi_albert_graph(1000, 10)
+print("Number of nodes:", graph.number_of_nodes())
+print("Number of edges:", graph.number_of_edges())
+# # plot the graph
+# plt.figure(figsize=(12, 12))
+# pos = nx.spring_layout(graph)
+# nx.draw(graph, pos, node_size=10, width=0.1)
+# plt.show()
+
+# file_path = 'Final Project/email-dnc.edges'
+# # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+# def read_edge_list_with_bom(file_path):
+#     with open(file_path, 'r', encoding='utf-8-sig') as f:
+#         edges = f.readlines()
+#     return edges
+
+# edges = read_edge_list_with_bom(file_path)
+# graph = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+# print("Number of nodes:", graph.number_of_nodes())
+# print("Number of edges:", graph.number_of_edges())
+
+
+# graph = nx.barabasi_albert_graph(100, 10)
+G_original = graph_org.copy()
+G_attacked_nodes = graph_org.copy()
+# Perform attacks
+attacks=("Random Failures", "Targeted Attacks (Degree)", "Targeted Attacks (Betweenness)", "Targeted Attacks (Pagerank)")
+# Assuming the simulate_attacks_* functions are correctly modified to return sizes in a flat list format
+result_random_failures = []
+result_HighDegree = []
+result_HighBetweenness = []
+result_PageRank = []
+
+result_random_failures_node = []
+result_HighDegree_node = []
+result_HighBetweenness_node = []
+result_PageRank_node = []
+
+for attack_type in attacks:
+    G = G_original.copy()
+    G_attacked_nodes = G_original.copy()
+    number_of_nodes = G.number_of_nodes()
+    while ((number_of_nodes - G.number_of_nodes())/number_of_nodes) < 0.98 :
+        if attack_type == "Random Failures":
+            graph, sizes = simulate_random_attacks(G)
+            result_random_failures.extend(sizes)
+            result_random_failures_node.append(((number_of_nodes - graph.number_of_nodes())))
+            
+        elif attack_type == "Targeted Attacks (Degree)":
+            graph, sizes = simulate_high_degree_attacks(G)
+            result_HighDegree.extend(sizes)
+            result_HighDegree_node.append((number_of_nodes - graph.number_of_nodes()))
+            
+        elif attack_type == "Targeted Attacks (Betweenness)":
+            graph, sizes = simulate_high_betweenness_attacks(G)
+            result_HighBetweenness.extend(sizes)
+            result_HighBetweenness_node.append(((number_of_nodes - graph.number_of_nodes())))
+            
+        elif attack_type == "Targeted Attacks (Pagerank)":
+            graph, sizes = simulate_pagerank_attacks(G)
+            result_PageRank.extend(sizes)
+            result_PageRank_node.append(((number_of_nodes - graph.number_of_nodes())))
+            
+        try:
+            # Ensure the graph is known as `graph` for further operations
+            if nx.is_directed(G) :
+                # Use strongly connected components for directed graphs
+                G = graph.subgraph(max(nx.strongly_connected_components(graph), key=len))
+            else:
+                # Use connected components for undirected graphs
+                G = graph.subgraph(max(nx.connected_components(graph), key=len))
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            break
+print(result_random_failures)
+print(result_HighDegree)
+print(result_HighBetweenness)
+print(result_PageRank)
+print("--------------------------------------------------")
+print(result_random_failures_node)
+print(result_HighDegree_node)
+print(result_HighBetweenness_node)
+print(result_PageRank_node)
+print("--------------------------------------------------")
+# Plot the results
+plt.figure(figsize=(12, 6))
+
+
+
+
+
+
+
