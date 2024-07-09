@@ -3,6 +3,27 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 # # Generate a random graph
+# file_path = 'Final Project/email-dnc.edges'
+# # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+# def read_edge_list_with_bom(file_path):
+#     with open(file_path, 'r', encoding='utf-8-sig') as f:
+#         edges = f.readlines()
+#     return edges
+
+# edges = read_edge_list_with_bom(file_path)
+# graph_org = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+# print("Number of nodes:", graph_org.number_of_nodes())
+# print("Number of edges:", graph_org.number_of_edges())
+
+# # Generate a random graph
+# graph_org = nx.barabasi_albert_graph(1000, 10)
+# print("Number of nodes:", graph_org.number_of_nodes())
+# print("Number of edges:", graph_org.number_of_edges())
+
+# generate a random graph
+graph_org = nx.erdos_renyi_graph(1000, 0.1)
+print("Number of nodes:", graph_org.number_of_nodes())
+print("Number of edges:", graph_org.number_of_edges())
 
 def compute_giant_component_size(G):
     if G.number_of_nodes() == 0:
@@ -173,17 +194,17 @@ def analyze_network_robustness(graph_org,kind):
     # Display the plot
     plt.show()
     plt.savefig(f'Final Project/Frames/Assignment3Frames/plot_{kind}.png')
-def main():
-    #creat a dictionary to store the graph with the key is the name of the graph
-    file_path = 'Final Project/email-dnc.edges'
-    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-    def read_edge_list_with_bom(file_path):
-        with open(file_path, 'r', encoding='utf-8-sig') as f:
-            edges = f.readlines()
-        return edges
+    def main():
+        #creat a dictionary to store the graph with the key is the name of the graph
+        file_path = 'Final Project/email-dnc.edges'
+        # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+        def read_edge_list_with_bom(file_path):
+            with open(file_path, 'r', encoding='utf-8-sig') as f:
+                edges = f.readlines()
+            return edges
 
-    edges = read_edge_list_with_bom(file_path)
-    graphs = {
+        edges = read_edge_list_with_bom(file_path)
+        graphs = {
             'Complete Graph': nx.complete_graph(1000),
             'Barabasi Albert Graph': nx.barabasi_albert_graph(1000, 10),
             'Watts Strogatz Graph': nx.watts_strogatz_graph(1000, 10, 0.2),
@@ -195,15 +216,18 @@ def main():
             'Grid Graph': nx.grid_2d_graph(10, 10),
             'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
         }
-    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-    # # Generate a random graph
-    for name, graph in graphs.items():
+        # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+        # # Generate a random graph
+        for name, graph in graphs.items():
             print(f"Analyzing {name}")
-            analyze_network_robustness(graph,name)
+            analyze_network_robustness(graph)
             print("\n\n\n")  
 
-if __name__ == "__main__":
-    main()
+
+        
+
+    if __name__ == "__main__":
+        main()
 
 
 

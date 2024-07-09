@@ -3,6 +3,27 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 # # Generate a random graph
+# file_path = 'Final Project/email-dnc.edges'
+# # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+# def read_edge_list_with_bom(file_path):
+#     with open(file_path, 'r', encoding='utf-8-sig') as f:
+#         edges = f.readlines()
+#     return edges
+
+# edges = read_edge_list_with_bom(file_path)
+# graph_org = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+# print("Number of nodes:", graph_org.number_of_nodes())
+# print("Number of edges:", graph_org.number_of_edges())
+
+# # Generate a random graph
+# graph_org = nx.barabasi_albert_graph(1000, 10)
+# print("Number of nodes:", graph_org.number_of_nodes())
+# print("Number of edges:", graph_org.number_of_edges())
+
+# generate a random graph
+graph_org = nx.erdos_renyi_graph(1000, 0.1)
+print("Number of nodes:", graph_org.number_of_nodes())
+print("Number of edges:", graph_org.number_of_edges())
 
 def compute_giant_component_size(G):
     if G.number_of_nodes() == 0:
@@ -59,7 +80,7 @@ def simulate_pagerank_attacks(G, fraction=0.01):
     nodes_to_remove = nodes_to_remove[:num_nodes]
     return simulate_attacks(G_copy, nodes_to_remove)
 
-def analyze_network_robustness(graph_org,kind):
+def analyze_network_robustness(graph_org):
     G_original = graph_org.copy()
     # Perform attacks
     attacks=("Random Failures", "Targeted Attacks (Degree)", "Targeted Attacks (Betweenness)", "Targeted Attacks (Pagerank)")
@@ -125,16 +146,16 @@ def analyze_network_robustness(graph_org,kind):
                 break
     # print result with description
     # Print the values to ensure they align correctly
-    # def print_data(name, nodes, sizes):
-    #     print(f"{name}:")
-    #     for n, s in zip(nodes, sizes):
-    #         print(f"Node Removed: {n}, Giant Component Size: {s}")
-    #     print("\n")
+    def print_data(name, nodes, sizes):
+        print(f"{name}:")
+        for n, s in zip(nodes, sizes):
+            print(f"Node Removed: {n}, Giant Component Size: {s}")
+        print("\n")
 
-    # print_data("Random Failures", result_random_failures_node, result_random_failures)
-    # print_data("High Degree", result_HighDegree_node, result_HighDegree)
-    # print_data("High Betweenness", result_HighBetweenness_node, result_HighBetweenness)
-    # print_data("PageRank", result_PageRank_node, result_PageRank)
+    print_data("Random Failures", result_random_failures_node, result_random_failures)
+    print_data("High Degree", result_HighDegree_node, result_HighDegree)
+    print_data("High Betweenness", result_HighBetweenness_node, result_HighBetweenness)
+    print_data("PageRank", result_PageRank_node, result_PageRank)
 
     min_len = min(len(result_random_failures), len(result_HighDegree), len(result_HighBetweenness), len(result_PageRank))
     most_damaging_strategy = None
@@ -169,41 +190,34 @@ def analyze_network_robustness(graph_org,kind):
     plt.legend()
     plt.xlabel('Fraction of Nodes Removed')
     plt.ylabel('Giant Component Size (Fraction of Original)')
-    plt.title(f'Network Robustness of {kind} under Different Attack Strategies')
+    plt.title('Network Robustness under Different Attack Strategies')
+
     # Display the plot
     plt.show()
-    plt.savefig(f'Final Project/Frames/Assignment3Frames/plot_{kind}.png')
-def main():
-    #creat a dictionary to store the graph with the key is the name of the graph
-    file_path = 'Final Project/email-dnc.edges'
-    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-    def read_edge_list_with_bom(file_path):
-        with open(file_path, 'r', encoding='utf-8-sig') as f:
-            edges = f.readlines()
-        return edges
 
-    edges = read_edge_list_with_bom(file_path)
-    graphs = {
-            'Complete Graph': nx.complete_graph(1000),
-            'Barabasi Albert Graph': nx.barabasi_albert_graph(1000, 10),
-            'Watts Strogatz Graph': nx.watts_strogatz_graph(1000, 10, 0.2),
-            'Random Geometric Graph': nx.random_geometric_graph(1000, 0.5),
-            'Scale Free Graph': nx.scale_free_graph(1000),
-            'Path Graph': nx.path_graph(1000),
-            'Cycle Graph': nx.cycle_graph(1000),
-            'Star Graph': nx.star_graph(1000),
-            'Grid Graph': nx.grid_2d_graph(10, 10),
-            'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
-        }
-    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
-    # # Generate a random graph
-    for name, graph in graphs.items():
-            print(f"Analyzing {name}")
-            analyze_network_robustness(graph,name)
-            print("\n\n\n")  
+    def main():
+        #creat a dictionary to store the graph with the key is the name of the graph
+        gr
+        
+        # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+        # # Generate a random graph
+        # file_path = 'Final Project/email-dnc.edges'
+        # # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+        # def read_edge_list_with_bom(file_path):
+        #     with open(file_path, 'r', encoding='utf-8-sig') as f:
+        #         edges = f.readlines()
+        #     return edges
 
-if __name__ == "__main__":
-    main()
+        # edges = read_edge_list_with_bom(file_path)
+        # graph_org = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+        # print("Number of nodes:", graph_org.number_of_nodes())
+        # print("Number of edges:", graph_org.number_of_edges())
+
+
+        analyze_network_robustness(graph_org)
+
+    if __name__ == "__main__":
+        main()
 
 
 

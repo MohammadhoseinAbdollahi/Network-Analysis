@@ -199,7 +199,7 @@ def main():
     # # Generate a random graph
     for name, graph in graphs.items():
             print(f"Analyzing {name}")
-            analyze_network_robustness(graph,name)
+            analyze_network_robustness(graph,)
             print("\n\n\n")  
 
 if __name__ == "__main__":
