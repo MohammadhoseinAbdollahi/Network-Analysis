@@ -63,7 +63,7 @@ def simulate_pagerank_attacks(G, fraction=0.01):
     return simulate_attacks(G_copy, nodes_to_remove)
 
 def compute_critical_threshold(graph):
-    adj_matrix = nx.adjacency_matrix(graph).todense()
+    adj_matrix = nx.adjacency_matrix(G).todense()
     eigenvalues = np.linalg.eigvals(adj_matrix)
     lambda_1 = max(eigenvalues)
     fc = 1 - (1 / lambda_1)

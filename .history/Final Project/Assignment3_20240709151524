@@ -37,6 +37,7 @@ def compute_critical_threshold(graph):
 critical_threshold_before = compute_critical_threshold(graph)
 
 
+
 # Then, compute the critical threshold before and after the improvement to evaluate the effectiveness of your strategy.
 critical_threshold_after = compute_critical_threshold(graph)
 

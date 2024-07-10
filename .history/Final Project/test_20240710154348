@@ -63,11 +63,14 @@ def simulate_pagerank_attacks(G, fraction=0.01):
     return simulate_attacks(G_copy, nodes_to_remove)
 
 def compute_critical_threshold(graph):
-    adj_matrix = nx.adjacency_matrix(graph).todense()
-    eigenvalues = np.linalg.eigvals(adj_matrix)
-    lambda_1 = max(eigenvalues)
-    fc = 1 - (1 / lambda_1)
-    return fc
+    # Compute the adjacency matrix of the graph
+    A = nx.adjacency_matrix(graph)
+    A = A.astype('d')
+    # Compute the largest eigenvalue of the adjacency matrix
+    largest_eigenvalue = scipy.sparse.linalg.eigs(A, k=1, which='LM', return_eigenvectors=False)
+    # The critical threshold is the inverse of the largest eigenvalue
+    critical_threshold = 1 / np.abs(largest_eigenvalue[0])
+    return critical_threshold.real
 
 def improve_network(graph, most_damaging_strategy):
     G=graph.copy()
