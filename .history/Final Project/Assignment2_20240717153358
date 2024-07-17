@@ -120,8 +120,9 @@ def analyze_results(final_info_dict, informed_counts):
     plt.figure(figsize=(10, 8))
     sns.heatmap(cos_sim, xticklabels=False, yticklabels=False, cmap='viridis')
     plt.title('Cosine Similarity of Information Spread')
+    plt.show()
     # Save the plot
-    plt.savefig('Final Project/Frames/Assignment2Frames/cosine.png')
+    plt.savefig('Final Project/Frames/Assignment2Frames/informed_nodes.png')
     plt.close()
 
 def visualize_graph(graph, gossipers, malicious,mal_rate,goss_rate,threshold):
@@ -130,6 +131,7 @@ def visualize_graph(graph, gossipers, malicious,mal_rate,goss_rate,threshold):
     colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in graph.nodes]
     nx.draw(graph, pos, node_color=colors, with_labels=False, node_size=50, edge_color='black', width=0.1)
     plt.title(f'Graph Visualization with Threshold: {threshold}, Malicious Rate: {mal_rate}, Gossipers Rate: {goss_rate}')
+    plt.show()
     plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
     plt.close()
     
@@ -183,6 +185,7 @@ def main():
             plt.ylabel('Number of Informed Nodes')
             plt.legend()
             plt.grid(True)
+            plt.show()
             # Save the plot
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
             plt.close()

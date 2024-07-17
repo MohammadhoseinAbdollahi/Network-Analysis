@@ -120,8 +120,9 @@ def analyze_results(final_info_dict, informed_counts):
     plt.figure(figsize=(10, 8))
     sns.heatmap(cos_sim, xticklabels=False, yticklabels=False, cmap='viridis')
     plt.title('Cosine Similarity of Information Spread')
+    plt.show()
     # Save the plot
-    plt.savefig('Final Project/Frames/Assignment2Frames/cosine.png')
+    plt.savefig('Final Project/Frames/Assignment2Frames/informed_nodes.png')
     plt.close()
 
 def visualize_graph(graph, gossipers, malicious,mal_rate,goss_rate,threshold):
@@ -183,6 +184,7 @@ def main():
             plt.ylabel('Number of Informed Nodes')
             plt.legend()
             plt.grid(True)
+            plt.show()
             # Save the plot
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
             plt.close()

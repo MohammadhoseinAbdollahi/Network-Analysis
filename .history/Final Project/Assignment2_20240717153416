@@ -183,6 +183,7 @@ def main():
             plt.ylabel('Number of Informed Nodes')
             plt.legend()
             plt.grid(True)
+            plt.show()
             # Save the plot
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
             plt.close()
