@@ -72,17 +72,29 @@ def compute_critical_threshold(graph):
 def improve_network(graph, most_damaging_strategy):
     G=graph.copy()
     if most_damaging_strategy == 'Random Failures':
-        print("Random Failures")
         for node in G.nodes():
             neighbors = list(G.neighbors(node))
-            if len(neighbors) < 3:  
+            if len(neighbors) < 3:  # Example condition to add more edges
                 possible_neighbors = [n for n in G.nodes() if n != node and n not in neighbors]
                 if possible_neighbors:
                     new_neighbor = np.random.choice(possible_neighbors)
                     G.add_edge(node, new_neighbor)
                     
     elif most_damaging_strategy == 'Targeted Attacks (Degree)':
-        print("Targeted Attacks (Degree)")
+        # degree_threshold = 5  # Example threshold for high-degree nodes
+        # nodes_to_add_edges = [node for node, degree in G.degree if degree > degree_threshold]
+        # for node in nodes_to_add_edges:
+        #     neighbors = list(G.neighbors(node))
+        #     low_degree_nodes = [n for n in G.nodes if G.degree(n) < degree_threshold]
+        #     if low_degree_nodes:
+        #         target_node = np.random.choice(low_degree_nodes)
+        #         G.add_edge(node, target_node)  
+        # for node in G.nodes():
+        #     degree = graph.degree(node)
+        #     if degree > 2:  # Example condition to redistribute connections
+        #         neighbors = list(graph.neighbors(node))
+        #         if neighbors:
+        #             graph.remove_edge(node, neighbors[0])  # Example: Remove one edge from high-degree node
         degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
         high_degree_nodes = [node for node, _ in degree_sorted_nodes[:100]]
         for i, node in enumerate(high_degree_nodes):
@@ -90,25 +102,21 @@ def improve_network(graph, most_damaging_strategy):
                 if not G.has_edge(node, high_degree_nodes[j]):
                     G.add_edge(node, high_degree_nodes[j])          
     elif most_damaging_strategy == 'Targeted Attacks (Betweenness)':
-        print("Targeted Attacks (Betweenness)")
         for edge in G.edges():
             betweenness = nx.edge_betweenness_centrality(G)
-            if betweenness[edge] > 0.1:  
+            if betweenness[edge] > 0.1:  # Example condition to reroute critical paths
                 node1, node2 = edge
                 neighbors1 = list(G.neighbors(node1))
                 neighbors2 = list(G.neighbors(node2))
-                print(edge)
                 if neighbors1 and neighbors2:
-                    G.remove_edge(node1, neighbors1[0])  
+                    G.remove_edge(node1, neighbors1[0])  # Example: Reroute one critical path
                     G.remove_edge(node2, neighbors2[0])
                     G.add_edge(neighbors1[0], neighbors2[0])
-                    print(edge)
                     
     elif most_damaging_strategy == 'Targeted Attacks (Pagerank)':
-        print("Targeted Attacks (Pagerank)")
         for node in G.nodes():
             pagerank = nx.pagerank(G)
-            if pagerank[node] > 0.05:  
+            if pagerank[node] > 0.05:  # Example condition to reduce influence
                 neighbors = list(G.neighbors(node))
                 if neighbors:
                     G.remove_edge(node, neighbors[0])  
@@ -222,6 +230,7 @@ def analyze_network_robustness(graph_org,kind,bool):
     if bool == True:
         plt.savefig(f'Final Project/Frames/Assignment3Frames/Improvment/plot_{kind}_improved.png')
     # Display the plot
+    plt.show()
     plt.close()
     return most_damaging_strategy
 
@@ -254,21 +263,21 @@ def main():
             'Star Graph': nx.star_graph(1000),
             # 'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
         }
-    # most_damaging_strategies = {}
-    # for name, graph in graphs.items():
-    #     print(f"Analyzing {name}")
-    #     most_damaging_strategy = analyze_network_robustness(graph, name,False)
-    #     most_damaging_strategies[name] = most_damaging_strategy
-    #     print("\n\n\n")
+    most_damaging_strategies = {}
+    for name, graph in graphs.items():
+        print(f"Analyzing {name}")
+        most_damaging_strategy = analyze_network_robustness(graph, name,False)
+        most_damaging_strategies[name] = most_damaging_strategy
+        print("\n\n\n")
         
-    # print("Most damaging strategies for each graph:")
+    print("Most damaging strategies for each graph:")
     
-    # for name, strategy in most_damaging_strategies.items():
-    #     print(f"{name}: {strategy}")
+    for name, strategy in most_damaging_strategies.items():
+        print(f"{name}: {strategy}")
         
-    # save_most_damaging_strategy(most_damaging_strategies)
+    save_most_damaging_strategy(most_damaging_strategies)
     #read the most_damaging_strategies.csv file to get the most damaging strategy for each graph
-    with open('most_damaging_strategies.csv', 'r') as csvfile:
+    with open('', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         most_damaging_strategies = {row['Graph']: row['Most Damaging Strategy'] for row in reader}
         

@@ -90,22 +90,18 @@ def improve_network(graph, most_damaging_strategy):
                 if not G.has_edge(node, high_degree_nodes[j]):
                     G.add_edge(node, high_degree_nodes[j])          
     elif most_damaging_strategy == 'Targeted Attacks (Betweenness)':
-        print("Targeted Attacks (Betweenness)")
         for edge in G.edges():
             betweenness = nx.edge_betweenness_centrality(G)
             if betweenness[edge] > 0.1:  
                 node1, node2 = edge
                 neighbors1 = list(G.neighbors(node1))
                 neighbors2 = list(G.neighbors(node2))
-                print(edge)
                 if neighbors1 and neighbors2:
                     G.remove_edge(node1, neighbors1[0])  
                     G.remove_edge(node2, neighbors2[0])
                     G.add_edge(neighbors1[0], neighbors2[0])
-                    print(edge)
                     
     elif most_damaging_strategy == 'Targeted Attacks (Pagerank)':
-        print("Targeted Attacks (Pagerank)")
         for node in G.nodes():
             pagerank = nx.pagerank(G)
             if pagerank[node] > 0.05:  
