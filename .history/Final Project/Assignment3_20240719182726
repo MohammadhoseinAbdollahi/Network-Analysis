@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+
 import scipy
 
 def compute_giant_component_size(G):

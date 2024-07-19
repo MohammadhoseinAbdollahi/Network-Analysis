@@ -3,7 +3,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+
 import scipy
+# # Generate a random graph
 
 def compute_giant_component_size(G):
     if G.number_of_nodes() == 0:

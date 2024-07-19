@@ -3,7 +3,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+
 import scipy
+# # Generate a random graph
 
 def compute_giant_component_size(G):
     if G.number_of_nodes() == 0:
@@ -89,6 +91,18 @@ def improve_network(graph, most_damaging_strategy):
                     G.add_edge(node, high_degree_nodes[j])          
     elif most_damaging_strategy == 'Targeted Attacks (Betweenness)':
         print("Targeted Attacks (Betweenness)")
+        # for edge in G.edges():
+        #     betweenness = nx.edge_betweenness_centrality(G)
+        #     if betweenness[edge] > 0.1:  
+        #         node1, node2 = edge
+        #         neighbors1 = list(G.neighbors(node1))
+        #         neighbors2 = list(G.neighbors(node2))
+        #         print(edge)
+        #         if neighbors1 and neighbors2:
+        #             G.remove_edge(node1, neighbors1[0])  
+        #             G.remove_edge(node2, neighbors2[0])
+        #             G.add_edge(neighbors1[0], neighbors2[0])
+        #             print(edge)
         degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
         high_degree_nodes = [node for node, _ in degree_sorted_nodes[:100]]
         for i, node in enumerate(high_degree_nodes):
@@ -235,7 +249,7 @@ def main():
 
     edges = read_edge_list_with_bom(file_path)
     graphs = {
-            'Complete Graph': nx.complete_graph(1000),
+            # 'Complete Graph': nx.complete_graph(1000),
             'Barabasi Albert Graph': nx.barabasi_albert_graph(1000, 10),
             'Watts Strogatz Graph': nx.watts_strogatz_graph(1000, 10, 0.2),
             'Random Geometric Graph': nx.random_geometric_graph(1000, 0.5),
@@ -244,7 +258,7 @@ def main():
             'Path Graph': nx.path_graph(1000),
             'Cycle Graph': nx.cycle_graph(1000),
             'Star Graph': nx.star_graph(1000),
-            'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+            # 'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
         }
     most_damaging_strategies = {}
     for name, graph in graphs.items():
