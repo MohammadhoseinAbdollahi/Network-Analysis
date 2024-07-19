@@ -1,0 +1,196 @@
+import networkx as nx
+from infomap import Infomap
+import networkx as nx
+import matplotlib.pyplot as plt
+file_path = 'Final Project/email-dnc.edges'
+# Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+graph = nx.read_edgelist(file_path, delimiter=",", create_using=nx.MultiDiGraph(), data=(('timestamp', float),))
+
+def print_graph_info(graph):
+    # Print the number of nodes
+    print("Number of nodes:", graph.number_of_nodes())
+
+    # Print the number of edges
+    print("Number of edges:", graph.number_of_edges())
+
+    # Compute the average degree
+    average_degree = sum(dict(graph.degree()).values()) / graph.number_of_nodes()
+    print("Average degree:", average_degree)
+
+def plot_graph(graph):
+    
+    pos = nx.spring_layout(graph)
+    nx.draw(graph, pos, node_size=10, width=0.1)
+    plt.title("Email Communication Network")
+    plt.savefig('Final Project/Frames/Assignment1Frames/graph.png')
+    plt.close()
+
+def compute_degree_distribution(graph):
+    # Compute in-degree distribution
+    in_degree_sequence = sorted([d for n, d in graph.in_degree()], reverse=True)
+    in_degree_count = {}
+    for degree in in_degree_sequence:
+        if degree in in_degree_count:
+            in_degree_count[degree] += 1
+        else:
+            in_degree_count[degree] = 1
+
+    in_degrees = list(in_degree_count.keys())
+    in_counts = list(in_degree_count.values())
+
+    # Compute out-degree distribution
+    out_degree_sequence = sorted([d for n, d in graph.out_degree()], reverse=True)
+    out_degree_count = {}
+    for degree in out_degree_sequence:
+        if degree in out_degree_count:
+            out_degree_count[degree] += 1
+        else:
+            out_degree_count[degree] = 1
+
+    out_degrees = list(out_degree_count.keys())
+    out_counts = list(out_degree_count.values())
+
+    # Plot in-out-degree distribution
+    plt.figure(figsize=(12, 6))
+    plt.bar(in_degrees, in_counts, color='r', alpha=0.5, label='In-Degree')
+    plt.bar(out_degrees, out_counts, color='b', alpha=0.5, label='Out-Degree')
+    plt.xlabel('Degree')
+    plt.ylabel('Frequency')
+    plt.xlim(0, 150)
+    plt.title('Degree Distribution')
+    plt.legend()
+    plt.savefig('Final Project/Frames/Assignment1Frames/degree_distribution.png')
+    plt.close()
+    
+def compute_giant_component_size(graph):
+    largest_component = max(nx.strongly_connected_components(graph), key=len)
+    giant_component_size = len(largest_component)
+    print("Giant component size:", giant_component_size)
+    giant_component = graph.subgraph(largest_component)
+    pos = nx.spring_layout(giant_component)
+    nx.draw(giant_component, pos, node_size=10, width=0.1)
+    plt.title("Giant Component")
+    plt.savefig('Final Project/Frames/Assignment1Frames/giant_component.png')
+    plt.close()
+     
+    
+def compute_shortest_path_length_distribution(graph):
+    # Compute the distribution of shortest path lengths
+    shortest_path_lengths = nx.all_pairs_shortest_path_length(graph)
+    shortest_path_lengths = [length for source in shortest_path_lengths for target, length in source[1].items()]
+    shortest_path_lengths_count = {}
+    for length in shortest_path_lengths:
+        if length in shortest_path_lengths_count:
+            shortest_path_lengths_count[length] += 1
+        else:
+            shortest_path_lengths_count[length] = 1
+
+    # Plot the distribution of shortest path lengths
+    plt.figure(figsize=(12, 6))
+    plt.bar(shortest_path_lengths_count.keys(), shortest_path_lengths_count.values(), color='b', alpha=0.5)
+    plt.xlabel('Shortest Path Length')
+    plt.ylabel('Frequency')
+    plt.xlim(0, 8)
+    plt.title('Shortest Path Length Distribution')
+    plt.savefig('Final Project/Frames/Assignment1Frames/shortest_path_lengths.png')
+    plt.close()
+
+
+def compute_centralities(graph):
+    # Compute betweenness centrality
+    betweenness_centrality = nx.betweenness_centrality(graph)
+
+    # Compute closeness centrality
+    closeness_centrality = nx.closeness_centrality(graph)
+
+    # Plot the distribution of betweenness centrality
+    plt.figure(figsize=(12, 6))
+    plt.hist(betweenness_centrality.values(), bins=50, color='b', edgecolor='k')
+    plt.xlabel('Betweenness Centrality')
+    plt.ylabel('Frequency')
+    plt.title('Betweenness Centrality Distribution')
+    plt.grid(True)
+    plt.savefig('Final Project/Frames/Assignment1Frames/betweenness_centralities.png')
+    plt.close()
+    
+    # Plot the distribution of closeness centrality
+    plt.figure(figsize=(12, 6))
+    plt.hist(closeness_centrality.values(), bins=50, color='b', edgecolor='k')
+    plt.xlabel('Closeness Centrality')
+    plt.ylabel('Frequency')
+    plt.title('Closeness Centrality Distribution')
+    plt.grid(True)
+    # Save the plot in the specified directory
+    plt.savefig('Final Project/Frames/Assignment1Frames/closeness_centralities.png')
+    plt.close()
+    
+def compute_eigenvector(graph):
+    
+    eigenvector_centrality = nx.eigenvector_centrality(graph)
+    plt.figure(figsize=(12, 6))
+    plt.hist(eigenvector_centrality.values(), bins=50, color='b', edgecolor='k')
+    plt.xlabel('Eigenvector Centrality')
+    plt.ylabel('Frequency')
+    plt.title('Eigenvector Centrality Distribution')
+    plt.grid(True)
+    plt.savefig('Final Project/Frames/Assignment1Frames/eigenvector_centralities.png')
+    plt.close()
+
+def visualize_community_structure(graph):
+    # Initialize Infomap
+    infomap = Infomap()
+
+    # Add edges to Infomap (ignoring the edge data for Infomap)
+    for u, v, _ in graph.edges(data=True):
+        infomap.add_link(int(u), int(v))
+
+    # Run the Infomap algorithm
+    infomap.run()
+
+    # Get the communities
+    communities = infomap.get_modules()
+
+    # Assign colors to nodes based on communities
+    unique_communities = set(communities.values())
+    color_map = plt.colormaps['tab20']
+    colors = [color_map(i) for i in range(len(unique_communities))]
+    community_colors = {community: colors[i] for i, community in enumerate(unique_communities)}
+    node_colors = [community_colors[communities[node]] for node in graph.nodes()]
+
+    # Visualize the graph
+    plt.figure(figsize=(12, 12))
+    pos = nx.spring_layout(graph)  # Layout for positioning nodes
+
+    nx.draw_networkx_nodes(graph, pos, node_color=node_colors, node_size=50, alpha=0.8)
+    nx.draw_networkx_edges(graph, pos, edgelist=graph.edges(), edge_color='gray', alpha=0.5, arrows=True)
+    plt.title("Community Structure in Directed Graph")
+    plt.savefig('Final Project/Frames/Assignment1Frames/community_structure.png')
+    plt.close()
+    
+# Function to read an edge list file and strip the BOM if present
+def read_edge_list_with_bom(file_path):
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        edges = f.readlines()
+    return edges
+
+def main():
+    
+    file_path = 'Final Project/email-dnc.edges'
+    edges = read_edge_list_with_bom(file_path)
+    graph = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+
+    print_graph_info(graph)
+    plot_graph(graph)
+    compute_giant_component_size(graph)
+    compute_degree_distribution(graph)
+    compute_shortest_path_length_distribution(graph)
+    compute_centralities(graph)
+    visualize_community_structure(graph)
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
