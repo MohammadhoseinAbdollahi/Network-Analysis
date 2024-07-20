@@ -9,6 +9,7 @@ import os
 import seaborn as sns
 import csv
 
+
 def set_parameters(graph, num_nodes,fraction_gossipers,fraction_malicious,threshold):
     # set parameters for the simulation
     num_gossipers = max(5, int(fraction_gossipers * num_nodes))  # At least 5 or 5% of nodes
