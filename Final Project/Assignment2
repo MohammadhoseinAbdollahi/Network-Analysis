@@ -11,14 +11,15 @@ import csv
 
 def set_parameters(graph, num_nodes, fraction_gossipers, fraction_malicious, threshold):
     # Set parameters for the simulation
-    num_gossipers = max(10, int(fraction_malicious * num_nodes))  # At least 5 or 5% of nodes
-    num_malicious = max(1,fraction_gossipers) # At least 10 or 10% of nodes
+    num_gossipers = max(1,fraction_gossipers)  # At least 5 or 5% of nodes
+    num_malicious = max(1,fraction_malicious) # At least 10 or 10% of nodes
 
     # Initialize gossipers and malicious nodes
     degrees = dict(graph.degree())
-    sorted_degrees = sorted(degrees.items(), key=lambda x: x[1], reverse=True)
-    gossipers = [node for node, degree in sorted_degrees[:num_gossipers]]
-    malicious = random.sample([node for node in graph.nodes if node not in gossipers], num_malicious)
+    sorted_degrees = sorted(degrees.items(), key=lambda x: x[1])
+    sorted_degrees = sorted_degrees[:100]
+    malicious = random.sample([node for node, degree in sorted_degrees], num_malicious)
+    gossipers = random.sample([node for node in graph.nodes if node not in malicious], num_gossipers)
 
     # Initialize information in the nodes
     info_dict = {node: None for node in graph.nodes}
@@ -55,7 +56,7 @@ def spread_information_directed(graph, info_dict, gossipers, malicious, threshol
     false_info_count = []
     pos = nx.spring_layout(graph)
     
-    if threshold == 0.3 and goss_rate == 0.05 and mal_rate == 4:
+    if threshold == 0.1 and goss_rate == 32 and mal_rate == 32:
         draw_frame(graph, info_dict, 0, gossipers, malicious, frames, pos)
     informed_counts.append(sum(1 for node in info_dict if info_dict[node] is not None))  # Initial count
     correct_info_count.append(sum(1 for node in info_dict if info_dict[node] == "super secret sentence (True info)"))
@@ -96,7 +97,7 @@ def spread_information_directed(graph, info_dict, gossipers, malicious, threshol
 
         # Print debug information for each step
 
-        if threshold == 0.3 and goss_rate == 0.5 and mal_rate == 4:
+        if threshold == 0.1 and goss_rate == 32 and mal_rate == 32:
             draw_frame(graph, info_dict, step, gossipers, malicious, frames, pos)
         informed_counts.append(sum(1 for node in info_dict if info_dict[node] is not None))
         correct_info_count.append(sum(1 for node in info_dict if info_dict[node] == "super secret sentence (True info)"))
@@ -147,7 +148,7 @@ def main():
             
     graph=nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
     malicious_rates = [1, 4, 8, 16, 32]
-    gossipers_rates = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5,0.6]
+    gossipers_rates = [1,4,8,16,32]
     threshold_values =[0.1, 0.2, 0.3, 0.4, 0.5]
     results = []
     informed_counts_dict = {}# Store the informed counts for each combination of parameters
@@ -166,7 +167,7 @@ def main():
                 informed_counts_dict[(threshold, mal_rate, goss_rate)] = informed_counts
                 correct_info_dict[(threshold, mal_rate, goss_rate)] = correct
                 false_info_dict[(threshold, mal_rate, goss_rate)] = incorrect
-                if threshold == 0.3 and mal_rate == 4 and goss_rate == 0.05:
+                if threshold == 0.1 and mal_rate == 32 and goss_rate == 32:
                     analyze_results(final_info_dict, informed_counts)
                     imageio.mimsave('Final Project/Frames/Assignment2Frames/information_spread.gif', frames, duration=3)
                     visualize_graph(graph, gossipers, malicious, mal_rate, goss_rate, threshold)
@@ -196,15 +197,15 @@ def main():
     with open('Final Project/correct_info.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            correct_info_dict[(float(row['Threshold']), float(row['Malicious Rate']), int(row['Gossipers Rate']))] = eval(row['Correct Info'])
+            correct_info_dict[(float(row['Threshold']), int(row['Malicious Rate']), int(row['Gossipers Rate']))] = eval(row['Correct Info'])
     with open('Final Project/false_info.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            false_info_dict[(float(row['Threshold'])), float(row['Malicious Rate']), int(row['Gossipers Rate'])] = eval(row['False Info'])
+            false_info_dict[(float(row['Threshold'])), int(row['Malicious Rate']), int(row['Gossipers Rate'])] = eval(row['False Info'])
     with open('Final Project/informed_counts.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            informed_counts_dict[(float(row['Threshold'])), float(row['Malicious Rate']), int(row['Gossipers Rate'])] = eval(row['Informed Counts'])
+            informed_counts_dict[(float(row['Threshold'])), int(row['Malicious Rate']), int(row['Gossipers Rate'])] = eval(row['Informed Counts'])
     # Plot the impact of each parameter on the number of informed nodes
     colors = ['blue', 'red', 'green', 'orange', 'purple', 'brown', 'pink']
     for i, threshold in enumerate(threshold_values):
@@ -226,9 +227,8 @@ def main():
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
             plt.close()
 
-    # Define colors for different gossiper rates
+    
     colors = plt.cm.tab20.colors  # You can use any colormap you prefer
-
     # Plot the impact of each parameter on the number of correct and incorrect information (last step)
     for i, threshold in enumerate(threshold_values):
         for j, mal_rate in enumerate(malicious_rates):
@@ -253,9 +253,7 @@ def main():
             # Save the plot
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Compare_true_false/Compare_true_false_Threshold_{threshold}_MaliciousRate_{mal_rate}.png')
             plt.close()
-
-   
-    
+            
     print("Simulation completed")
     
 if __name__ == "__main__":
