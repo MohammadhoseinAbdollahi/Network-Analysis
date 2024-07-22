@@ -1,0 +1,230 @@
+import networkx as nx
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics.pairwise import cosine_similarity
+import seaborn as sns
+import imageio.v2 as imageio  # Use imageio.v2 to avoid deprecation warning
+import os
+import seaborn as sns
+import csv
+
+def set_parameters(graph, num_nodes,fraction_gossipers,fraction_malicious,threshold):
+    # set parameters for the simulation
+    num_gossipers = max(5, int(fraction_gossipers * num_nodes))  # At least 5 or 5% of nodes
+    num_malicious = max(10, int(fraction_malicious * num_nodes))  # At least 10 or 10% of nodes
+    
+
+    # Initialize gossipers and malicious nodes
+    gossipers = random.sample(list(graph.nodes), num_gossipers)
+    malicious = random.sample([node for node in graph.nodes if node not in gossipers], num_malicious)
+
+   
+    # Compare the in and out degree of the malicious nodes and the gossipers with plots
+    malicious_in_degrees = [graph.in_degree(node) for node in malicious]
+    malicious_out_degrees = [graph.out_degree(node) for node in malicious]
+    gossipers_in_degrees = [graph.in_degree(node) for node in gossipers]
+    gossipers_out_degrees = [graph.out_degree(node) for node in gossipers]
+    
+    if(threshold == 0.3 and fraction_gossipers == 0.05 and fraction_malicious == 0.05):
+        # Plot the in-degrees
+        plt.figure(figsize=(12, 6))
+        plt.bar(range(len(malicious_in_degrees)), malicious_in_degrees, color='r', alpha=0.7, label='Malicious')
+        plt.bar(range(len(gossipers_in_degrees)), gossipers_in_degrees, color='g', alpha=0.7, label='Gossipers')
+        plt.ylabel('In-Degree')
+        plt.title('In-Degree Distribution of Malicious Nodes and Gossipers')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        # Plot the out-degrees
+        plt.figure(figsize=(12, 6))
+        plt.bar(range(len(malicious_out_degrees)), malicious_out_degrees, color='r', alpha=0.7, label='Malicious')
+        plt.bar(range(len(gossipers_out_degrees)), gossipers_out_degrees, color='g', alpha=0.7, label='Gossipers')
+        plt.ylabel('Out-Degree')
+        plt.title('Out-Degree Distribution of Malicious Nodes and Gossipers')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    # Initialize information in the nodes
+    info_dict = {node: None for node in graph.nodes}
+    for g in gossipers:
+        info_dict[g] = "super secret sentence (True info)"
+    for m in malicious:
+        info_dict[m] = "super secret sentence (False info)"
+    return gossipers, malicious, threshold, info_dict
+
+    
+
+# Function to spread information and capture the process step-by-step
+def spread_information_directed(graph, info_dict, gossipers, malicious, threshold, goss_rate, mal_rate):
+    frames = []
+    informed_counts = []  # Track the count of informed nodes at each step
+    pos = nx.spring_layout(graph)
+    
+    def draw_frame(info_dict, step,gossipers, malicious):
+        colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in graph.nodes]
+        node_colors = []
+        
+        for i, node in enumerate(graph.nodes):
+            if info_dict[node] is None:
+                node_colors.append(colors[i])
+            elif info_dict[node] == 'super secret sentence (False info)':
+                node_colors.append('yellow')
+            else:
+                node_colors.append('cyan')
+        plt.figure(figsize=(8, 6))
+        nx.draw(graph, pos, node_color=node_colors, with_labels=False, node_size=50, edge_color='black', width=0.1)
+        plt.title(f'Step {step}')
+        plt.savefig(f'Final Project/Frames/Assignment2Frames/step_{step}.png')
+        plt.close()
+        frames.append(imageio.imread(f'Final Project/Frames/Assignment2Frames/step_{step}.png'))
+    
+    if threshold == 0.3 and goss_rate == 0.05 and mal_rate == 0.05:
+        draw_frame(info_dict, 0,gossipers, malicious)
+    
+    informed_counts.append(sum(1 for node in info_dict if info_dict[node] is not None))  # Initial count
+    new_info_dict = info_dict.copy()
+    step = 1
+    while True:
+        changes = False
+        for node in graph.nodes:
+            if info_dict[node] is None:
+                successors = list(graph.successors(node))
+                predecessors = list(graph.predecessors(node))
+                neighbors = successors + predecessors  # Combine both for a comprehensive neighbor list
+                if neighbors:
+                    received_info = [info_dict[neighbor] for neighbor in neighbors if info_dict[neighbor] is not None]
+                    if len(received_info) / len(neighbors) >= threshold:
+                        if node in malicious:
+                            new_info_dict[node] = "super secret sentence (False info)"
+                        else:
+                            new_info_dict[node] = "super secret sentence (True info)"
+                        changes = True
+        if not changes:
+            break
+        info_dict = new_info_dict.copy()
+        if threshold == 0.3 and goss_rate == 0.05 and mal_rate == 0.05:
+            draw_frame(info_dict, step,gossipers, malicious)
+        informed_counts.append(sum(1 for node in info_dict if info_dict[node] is not None))
+        step += 1
+    return info_dict, frames, informed_counts
+
+    
+
+def analyze_results(final_info_dict, informed_counts):
+    info_list = list(final_info_dict.values())
+    unique_infos = list(set(info_list))
+    info_vectors = np.zeros((len(info_list), len(unique_infos)))
+
+    for i, info in enumerate(info_list):
+        if info is not None:
+            info_vectors[i, unique_infos.index(info)] = 1
+
+    cos_sim = cosine_similarity(info_vectors)
+
+    # Plot the cosine similarity as a heatmap
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cos_sim, xticklabels=False, yticklabels=False, cmap='viridis')
+    plt.title('Cosine Similarity of Information Spread')
+    # Save the plot
+    plt.savefig('Final Project/Frames/Assignment2Frames/cosine.png')
+    plt.close()
+
+def visualize_graph(graph, gossipers, malicious,mal_rate,goss_rate,threshold):
+    # Visualize the graph
+    pos = nx.spring_layout(graph)
+    colors = ['green' if node in gossipers else 'red' if node in malicious else 'blue' for node in graph.nodes]
+    nx.draw(graph, pos, node_color=colors, with_labels=False, node_size=50, edge_color='black', width=0.1)
+    plt.title(f'Graph Visualization with Threshold: {threshold}, Malicious Rate: {mal_rate}, Gossipers Rate: {goss_rate}')
+    plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
+    plt.close()
+    
+def manualy_selected_nodes (graph):
+    # Select the nodes manually
+    degrees = dict(graph.degree())
+    sorted_degrees = sorted(degrees.items(), key=lambda x: x[1], reverse=True)
+    gossipers = [node for node, degree in sorted_degrees[:5]]
+    degrees = dict(graph.degree())
+    sorted_degrees = sorted(degrees.items(), key=lambda x: x[1])
+    malicious = [node for node, degree in sorted_degrees[:500]]
+    threshold = 0.3
+    info_dict = {node: None for node in graph.nodes}
+    for g in gossipers:
+        info_dict[g] = "super secret sentence (True info)"
+    for m in malicious:
+        info_dict[m] = "super secret sentence (False info)"
+    final_info_dict, frames, informed_counts = spread_information_directed(graph, info_dict, gossipers, malicious, threshold,0.05,0.05)
+    analyze_results(final_info_dict, informed_counts)
+    imageio.mimsave('Final Project/Frames/Assignment2Frames/information_spread.gif', frames, duration=3)
+    visualize_graph(graph, gossipers, malicious, 500, 5, 0.3)  
+    #Plot the impact of each parameter on the number of informed nodes
+    plt.figure(figsize=(10, 6))
+    plt.plot(informed_counts, marker='o', linestyle='-', label=f"Manual Selection")
+    plt.title(f"Threshold: {threshold}, Malicious num: {100}, Gossipers num: {1}")
+    plt.xlabel('Step')
+    plt.ylabel('Number of Informed Nodes')
+    plt.legend()
+    plt.grid(True)
+    # Save the plot
+    plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{100}_GossipersRate_{1}.png')
+    plt.close()
+
+def main():
+    #creat a dictionary to store the graph with the key is the name of the graph
+    file_path = 'Final Project/email-dnc.edges'
+    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+    def read_edge_list_with_bom(file_path):
+        with open(file_path, 'r', encoding='utf-8-sig') as f:
+            edges = f.readlines()
+        return edges
+    edges = read_edge_list_with_bom(file_path)
+            
+    graph=nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+    # malicious_rates = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+    # gossipers_rates = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+    # threshold_values =[0.1, 0.2, 0.3, 0.4, 0.5]
+    # results = []
+    # informed_counts_dict = {}  # Store the informed counts for each combination of parameters
+    # print("Graph loaded")
+    # for threshold in threshold_values:
+    #     print("Threshold: ", threshold)
+    #     for mal_rate in malicious_rates:
+    #         print("Malicious Rate: ", mal_rate)
+    #         for goss_rate in gossipers_rates:
+    #             print("Gossipers Rate: ", goss_rate)
+    #             gossipers, malicious, threshold, info_dict = set_parameters(graph, graph.number_of_nodes(), goss_rate, mal_rate, threshold)
+    #             final_info_dict,frames, informed_counts = spread_information_directed(graph, info_dict, gossipers, malicious, threshold,goss_rate,mal_rate)
+    #             results.append((threshold, mal_rate, goss_rate, final_info_dict, informed_counts))
+    #             informed_counts_dict[(threshold, mal_rate, goss_rate)] = informed_counts
+    #             if threshold == 0.3 and mal_rate == 0.05 and goss_rate == 0.05:
+    #                 analyze_results(final_info_dict, informed_counts)
+    #                 imageio.mimsave('Final Project/Frames/Assignment2Frames/information_spread.gif', frames, duration=3)
+    #                 visualize_graph(graph, gossipers, malicious, mal_rate, goss_rate, threshold)
+    # # Save informed_counts_dict to a CSV file
+    # with open('Final Project/informed_counts.csv', 'w', newline='') as csvfile:
+    #     writer = csv.writer(csvfile)
+    #     writer.writerow(['Threshold', 'Malicious Rate', 'Gossipers Rate', 'Informed Counts'])
+    #     for key, value in informed_counts_dict.items():
+    #         writer.writerow([key[0], key[1], key[2], value])
+    # # Plot the impact of each parameter on the number of informed nodes
+    # for i, threshold in enumerate(threshold_values):
+    #     for j, mal_rate in enumerate(malicious_rates):
+    #         plt.figure(figsize=(10, 6))
+    #         for goss_rate in gossipers_rates:
+    #             informed_counts = informed_counts_dict[(threshold, mal_rate, goss_rate)]
+    #             plt.plot(informed_counts, marker='o', linestyle='-', label=f"Gossipers Rate: {goss_rate}")
+    #         plt.title(f"Threshold: {threshold}, Malicious Rate: {mal_rate}")
+    #         plt.xlabel('Step')
+    #         plt.ylabel('Number of Informed Nodes')
+    #         plt.legend()
+    #         plt.grid(True)
+    #         # Save the plot
+    #         plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Threshold_{threshold}_MaliciousRate_{mal_rate}_GossipersRate_{goss_rate}.png')
+    #         plt.close()
+    manualy_selected_nodes(graph)
+    
+if __name__ == "__main__":
+    main()
+
+
