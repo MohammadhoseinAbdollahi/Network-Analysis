@@ -1,0 +1,282 @@
+import imageio.v2 as imageio
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+import csv
+import scipy
+from assignment1 import function_name_1, function_name_2def compute_giant_component_size(G):
+    if G.number_of_nodes() == 0:
+        return 0
+    if nx.is_directed(G):
+        largest_scc = max(nx.strongly_connected_components(G), key=len)
+    else:
+        largest_scc = max(nx.connected_components(G), key=len)
+    return len(largest_scc)
+
+def compute_zero_degree_nodes(G):
+    zero_degree_nodes = [node for node, degree in G.degree if degree == 0]
+    return len(zero_degree_nodes) 
+
+def simulate_attacks(graph, nodes_to_remove):
+    sizes = []
+    G = graph.copy()
+    initial_size = compute_giant_component_size(graph)  
+    for node in nodes_to_remove:
+        G.remove_node(node)
+    giant_component_size = (compute_giant_component_size(G))
+    sizes.append(giant_component_size)
+    return G,sizes
+
+
+def simulate_random_attacks(G, fraction=0.01):
+    G_copy = G.copy()
+    nodes_to_remove = np.random.permutation(G_copy.nodes)
+    num_nodes = int(len(nodes_to_remove) * fraction)+1
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_degree_attacks(G, fraction=0.01):
+    G_copy = G.copy()
+    degree_sorted_nodes = sorted(G_copy.degree, key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in degree_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)+1
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_high_betweenness_attacks(G, fraction=0.01):
+    G_copy = G.copy()
+    betweenness_sorted_nodes = sorted(nx.betweenness_centrality(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in betweenness_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)+1
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def simulate_pagerank_attacks(G, fraction=0.01):
+    G_copy = G.copy()
+    pagerank_sorted_nodes = sorted(nx.pagerank(G_copy).items(), key=lambda x: x[1], reverse=True)
+    nodes_to_remove = [node for node, _ in pagerank_sorted_nodes]
+    num_nodes = int(len(nodes_to_remove) * fraction)+1
+    nodes_to_remove = nodes_to_remove[:num_nodes]
+    return simulate_attacks(G_copy, nodes_to_remove)
+
+def compute_critical_threshold(graph):
+    adj_matrix = nx.adjacency_matrix(graph).todense()
+    eigenvalues = np.linalg.eigvals(adj_matrix)
+    lambda_1 = max(eigenvalues)
+    fc = 1 - (1 / lambda_1)
+    return fc
+
+def improve_network(graph, most_damaging_strategy):
+    G=graph.copy()
+    if most_damaging_strategy == 'Random Failures':
+        print("Random Failures")
+        for node in G.nodes():
+            neighbors = list(G.neighbors(node))
+            if len(neighbors) < 3:  
+                possible_neighbors = [n for n in G.nodes() if n != node and n not in neighbors]
+                if possible_neighbors:
+                    new_neighbor = np.random.choice(possible_neighbors)
+                    G.add_edge(node, new_neighbor)
+                    
+    elif most_damaging_strategy == 'Targeted Attacks (Degree)':
+        print("Targeted Attacks (Degree)")
+        degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
+        high_degree_nodes = [node for node, _ in degree_sorted_nodes[:100]]
+        for i, node in enumerate(high_degree_nodes):
+            for j in range(i + 1, len(high_degree_nodes)):
+                if not G.has_edge(node, high_degree_nodes[j]):
+                    G.add_edge(node, high_degree_nodes[j])          
+    elif most_damaging_strategy == 'Targeted Attacks (Betweenness)':
+        print("Targeted Attacks (Betweenness)")
+        degree_sorted_nodes = sorted(G.degree, key=lambda x: x[1], reverse=True)
+        high_degree_nodes = [node for node, _ in degree_sorted_nodes[:100]]
+        for i, node in enumerate(high_degree_nodes):
+            for j in range(i + 1, len(high_degree_nodes)):
+                if not G.has_edge(node, high_degree_nodes[j]):
+                    G.add_edge(node, high_degree_nodes[j])    
+                    
+    elif most_damaging_strategy == 'Targeted Attacks (Pagerank)':
+        print("Targeted Attacks (Pagerank)")
+        for node in G.nodes():
+            pagerank = nx.pagerank(G)
+            if pagerank[node] > 0.05:  
+                neighbors = list(G.neighbors(node))
+                if neighbors:
+                    G.remove_edge(node, neighbors[0])  
+                      
+    return G, compute_critical_threshold(graph), compute_critical_threshold(G)
+
+def analyze_network_robustness(graph_org,kind,bool):
+    G_original = graph_org.copy()
+    # Perform attacks
+    attacks=("Random Failures", "Targeted Attacks (Degree)", "Targeted Attacks (Betweenness)", "Targeted Attacks (Pagerank)")
+    # Assuming the simulate_attacks_* functions are correctly modified to return sizes in a flat list format
+    result_random_failures = []
+    result_HighDegree = []
+    result_HighBetweenness = []
+    result_PageRank = []
+
+    result_random_failures_node = []
+    result_HighDegree_node = []
+    result_HighBetweenness_node = []
+    result_PageRank_node = []
+
+    for attack_type in attacks:
+        G = G_original.copy()
+        number_of_nodes = G.number_of_nodes()
+
+        if attack_type == "Random Failures":
+            result_random_failures.extend([compute_giant_component_size(G)])
+            result_random_failures_node.append((number_of_nodes - G.number_of_nodes()))
+        elif attack_type == "Targeted Attacks (Degree)":
+            result_HighDegree.extend([compute_giant_component_size(G)])
+            result_HighDegree_node.append((number_of_nodes - G.number_of_nodes()))
+        elif attack_type == "Targeted Attacks (Betweenness)":
+            result_HighBetweenness.extend([compute_giant_component_size(G)])
+            result_HighBetweenness_node.append((number_of_nodes - G.number_of_nodes()))
+        elif attack_type == "Targeted Attacks (Pagerank)":
+            result_PageRank.extend([compute_giant_component_size(G)])
+            result_PageRank_node.append((number_of_nodes - G.number_of_nodes()))
+
+        while compute_giant_component_size(G) > 1:
+            if attack_type == "Random Failures":
+                graph, sizes = simulate_random_attacks(G)
+                result_random_failures.extend(sizes)
+                result_random_failures_node.append((number_of_nodes - graph.number_of_nodes()))
+                
+            elif attack_type == "Targeted Attacks (Degree)":
+                graph, sizes = simulate_high_degree_attacks(G)
+                result_HighDegree.extend(sizes)
+                result_HighDegree_node.append((number_of_nodes - graph.number_of_nodes()))
+                
+            elif attack_type == "Targeted Attacks (Betweenness)":
+                graph, sizes = simulate_high_betweenness_attacks(G)
+                result_HighBetweenness.extend(sizes)
+                result_HighBetweenness_node.append((number_of_nodes - graph.number_of_nodes()))
+                
+            elif attack_type == "Targeted Attacks (Pagerank)":
+                graph, sizes = simulate_pagerank_attacks(G)
+                result_PageRank.extend(sizes)
+                result_PageRank_node.append((number_of_nodes - graph.number_of_nodes()))
+            
+            # if compute_giant_component_size(G) == compute_giant_component_size(graph):
+            #     break
+            try:
+                # Ensure the graph is known as `graph` for further operations
+                if nx.is_directed(G) :
+                    # Use strongly connected components for directed graphs
+                    G = graph.subgraph(max(nx.strongly_connected_components(graph), key=len))
+                else:
+                    # Use connected components for undirected graphs
+                    G = graph.subgraph(max(nx.connected_components(graph), key=len))
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                break 
+
+    min_len = min(len(result_random_failures), len(result_HighDegree), len(result_HighBetweenness), len(result_PageRank))
+    print("Array with minimum length:", min_len)
+
+    if len(result_random_failures) == min_len:
+        most_damaging_strategy = "Random Failures"
+    elif len(result_HighDegree) == min_len:
+        most_damaging_strategy = "Targeted Attacks (Degree)"
+    elif len(result_HighBetweenness) == min_len:
+        most_damaging_strategy = "Targeted Attacks (Betweenness)"
+    elif len(result_PageRank) == min_len:
+        most_damaging_strategy = "Targeted Attacks (Pagerank)"
+
+    print("Most damaging strategy:", most_damaging_strategy)
+    
+
+    # clone the last element to make the length of all the same size of the longest one
+    max_len = max(len(result_random_failures), len(result_HighDegree), len(result_HighBetweenness), len(result_PageRank))
+    result_random_failures = result_random_failures + [result_random_failures[-1]] * (max_len - len(result_random_failures))
+    result_HighDegree = result_HighDegree + [result_HighDegree[-1]] * (max_len - len(result_HighDegree))
+    result_HighBetweenness = result_HighBetweenness + [result_HighBetweenness[-1]] * (max_len - len(result_HighBetweenness))
+    result_PageRank = result_PageRank + [result_PageRank[-1]] * (max_len - len(result_PageRank))
+
+    # plot the result
+
+    # Plotting each strategy
+    plt.plot(np.linspace(0, 1, len(result_random_failures)), result_random_failures, label='Random Failures')
+    plt.plot(np.linspace(0, 1, len(result_HighDegree)), result_HighDegree, label='High Degree')
+    plt.plot(np.linspace(0, 1, len(result_HighBetweenness)), result_HighBetweenness, label='High Betweenness')
+    plt.plot(np.linspace(0, 1, len(result_PageRank)), result_PageRank, label='PageRank')
+
+    # Adding legend, labels, and title
+    plt.legend()
+    plt.xlabel('Fraction of Nodes Removed')
+    plt.ylabel('Giant Component Size (Fraction of Original)')
+    plt.title(f'Network Robustness of {kind} under Different Attack Strategies')
+    if bool == False:
+        plt.savefig(f'Final Project/Frames/Assignment3Frames/plot_{kind}.png')
+    if bool == True:
+        plt.savefig(f'Final Project/Frames/Assignment3Frames/Improvment/plot_{kind}_improved.png')
+    # Display the plot
+    plt.close()
+    return most_damaging_strategy
+
+def save_most_damaging_strategy(most_damaging_strategies):
+        with open('most_damaging_strategies.csv', 'w', newline='') as csvfile:
+            fieldnames = ['Graph', 'Most Damaging Strategy']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for name, strategy in most_damaging_strategies.items():
+                writer.writerow({'Graph': name, 'Most Damaging Strategy': strategy})
+def main():
+    #creat a dictionary to store the graph with the key is the name of the graph
+    file_path = 'Final Project/email-dnc.edges'
+    # Load the dataset as a MultiDiGraph to allow multiple directed edges between two nodes
+    def read_edge_list_with_bom(file_path):
+        with open(file_path, 'r', encoding='utf-8-sig') as f:
+            edges = f.readlines()
+        return edges
+
+    edges = read_edge_list_with_bom(file_path)
+    graphs = {
+            # 'Complete Graph': nx.complete_graph(1000),
+            # 'Barabasi Albert Graph': nx.barabasi_albert_graph(1000, 10),
+            # 'Watts Strogatz Graph': nx.watts_strogatz_graph(1000, 10, 0.2),
+            # 'Random Geometric Graph': nx.random_geometric_graph(1000, 0.5),
+            # 'Scale Free Graph': nx.scale_free_graph(1000),
+            # 'erdos_renyi_graph': nx.erdos_renyi_graph(1000, 0.1),
+            # 'Path Graph': nx.path_graph(1000),
+            # 'Cycle Graph': nx.cycle_graph(1000),
+            # 'Star Graph': nx.star_graph(1000),
+            'Main_graph': nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
+        }
+    most_damaging_strategies = {}
+    for name, graph in graphs.items():
+        print(f"Analyzing {name}")
+        most_damaging_strategy = analyze_network_robustness(graph, name,False)
+        most_damaging_strategies[name] = most_damaging_strategy
+        print("\n\n\n")
+        
+    print("Most damaging strategies for each graph:")
+    
+    for name, strategy in most_damaging_strategies.items():
+        print(f"{name}: {strategy}")
+        
+    save_most_damaging_strategy(most_damaging_strategies)
+    # #read the most_damaging_strategies.csv file to get the most damaging strategy for each graph
+    # with open('most_damaging_strategies.csv', 'r') as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     most_damaging_strategies = {row['Graph']: row['Most Damaging Strategy'] for row in reader}
+        
+    for name, graph in graphs.items():
+        print(f"Improving {name}")
+        most_damaging_strategy = most_damaging_strategies[name]
+        improved_graph, critical_threshold_before, critical_threshold_after = improve_network(graph, most_damaging_strategy)
+        print(f"improved_graph_nodes: {improved_graph.number_of_nodes()}")
+        print(f"improved_graph_edges: {improved_graph.number_of_edges()}")
+        
+        print(f"Critical Threshold Before Improvement{name}: {critical_threshold_before}")
+        print(f"Critical Threshold After Improvement{name}: {critical_threshold_after}")
+        analyze_network_robustness(improved_graph, name,True)        
+        print("\n\n\n")
+if __name__ == "__main__":
+    main()
+
+
+
+

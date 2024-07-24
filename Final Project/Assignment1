@@ -172,18 +172,15 @@ def compute_diameter(graph):
     # Identify the largest strongly connected component
     GC = max(nx.strongly_connected_components(graph), key=len)
     giant_component = graph.subgraph(GC).copy()
-
     diameter = nx.diameter(giant_component)
     print("Diameter: (Giant Component)", diameter)
-    
     # Calculate all pairs shortest path lengths
     shortest_paths = dict(nx.all_pairs_shortest_path(giant_component))
-    
     # Find one of the diameter paths
     diameter_paths = []
     for source in shortest_paths:
         for target, path in shortest_paths[source].items():
-            if len(path) - 1 == diameter:  # path length includes the source node, so subtract 1
+            if len(path) - 1 == diameter:  
                 diameter_paths.append(path)
                 print(f"Diameter path found from {source} to {target}: {path}")
                 break
@@ -236,19 +233,19 @@ def main():
     file_path = 'Final Project/email-dnc.edges'
     edges = read_edge_list_with_bom(file_path)
     graph = nx.parse_edgelist(edges, delimiter=",", create_using=nx.MultiDiGraph(), nodetype=int, data=(('timestamp', float),))
-    # print_graph_info(graph)
-    # compute_degree_distribution(graph)
-    # plot_graph(graph)
-    # compute_giant_component_size(graph)
-    # compute_average_shortest_path_length(graph)
-    # compute_shortest_path_length_distribution(graph)
-    # compute_centralities(graph)
-    # compute_eigenvector(graph)
-    # compute_density(graph)
-    # compute_clustering_coefficient(graph)
-    # compute_transitivity(graph)
-    # compute_assortativity(graph)
-    # compute_diameter(graph)
+    print_graph_info(graph)
+    compute_degree_distribution(graph)
+    plot_graph(graph)
+    compute_giant_component_size(graph)
+    compute_average_shortest_path_length(graph)
+    compute_shortest_path_length_distribution(graph)
+    compute_centralities(graph)
+    compute_eigenvector(graph)
+    compute_density(graph)
+    compute_clustering_coefficient(graph)
+    compute_transitivity(graph)
+    compute_assortativity(graph)
+    compute_diameter(graph)
     visualize_community_structure(graph)
 
 if __name__ == "__main__":

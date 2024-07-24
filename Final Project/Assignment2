@@ -228,7 +228,7 @@ def main():
             plt.close()
 
     
-    colors = plt.cm.tab20.colors  # You can use any colormap you prefer
+    colors = plt.cm.tab20.colors  
     # Plot the impact of each parameter on the number of correct and incorrect information (last step)
     for i, threshold in enumerate(threshold_values):
         for j, mal_rate in enumerate(malicious_rates):
@@ -249,7 +249,7 @@ def main():
             plt.xticks(x, [f'{rate}' for rate in gossipers_rates])
             plt.legend()
             plt.grid(True)
-            plt.tight_layout()  # Adjust layout to prevent clipping of labels
+            plt.tight_layout()  
             # Save the plot
             plt.savefig(f'Final Project/Frames/Assignment2Frames/Compare/Compare_true_false/Compare_true_false_Threshold_{threshold}_MaliciousRate_{mal_rate}.png')
             plt.close()

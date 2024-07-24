@@ -1,0 +1,10 @@
+Graph,Most Damaging Strategy
+Main_graph,Targeted Attacks (Degree)
+Barabasi Albert Graph,Targeted Attacks (Betweenness)
+Watts Strogatz Graph,Targeted Attacks (Betweenness)
+Random Geometric Graph,Targeted Attacks (Pagerank)
+Scale Free Graph,Targeted Attacks (Degree)
+erdos_renyi_graph,Targeted Attacks (Degree)
+Path Graph,Targeted Attacks (Betweenness)
+Cycle Graph,Targeted Attacks (Betweenness)
+Star Graph,Targeted Attacks (Degree)
